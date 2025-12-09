@@ -1,0 +1,44 @@
+[
+  {
+    "id": "crescer",
+    "nome": "Crescer",
+    "descricao": "Grupos de crescimento e discipulado para todas as idades.",
+    "descricaoCompleta": "O ministério Crescer é responsável pelos pequenos grupos de estudo bíblico e comunhão que se reúnem semanalmente em diferentes regiões da cidade. Nosso objetivo é proporcionar um ambiente acolhedor para crescimento espiritual, onde cada membro pode estudar a Palavra, orar junto e desenvolver relacionamentos genuínos em Cristo.",
+    "icone": "Sprout"
+  },
+  {
+    "id": "comunicacao",
+    "nome": "Comunicação",
+    "descricao": "Mídias sociais, transmissões e comunicação visual.",
+    "descricaoCompleta": "O ministério de Comunicação cuida de toda a presença digital da igreja, incluindo redes sociais, transmissões ao vivo dos cultos, criação de artes visuais e gestão do site. Buscamos comunicar o evangelho de forma clara e relevante, alcançando pessoas dentro e fora da nossa comunidade.",
+    "icone": "Megaphone"
+  },
+  {
+    "id": "conexteen",
+    "nome": "Conexteen",
+    "descricao": "Ministério dedicado aos adolescentes da igreja.",
+    "descricaoCompleta": "O Conexteen é o ministério voltado para adolescentes de 12 a 17 anos. Realizamos encontros semanais com estudos bíblicos contextualizados, momentos de louvor, jogos e atividades que promovem amizades saudáveis. Nosso desejo é ver cada adolescente conhecendo a Cristo e vivendo segundo Sua Palavra.",
+    "icone": "Users"
+  },
+  {
+    "id": "homens",
+    "nome": "Homens",
+    "descricao": "Comunhão, discipulado e apoio aos homens da igreja.",
+    "descricaoCompleta": "O ministério de Homens existe para encorajar e equipar os homens da nossa igreja a serem líderes piedosos em seus lares, trabalho e comunidade. Promovemos encontros mensais, estudos bíblicos voltados para questões masculinas e momentos de comunhão fraterna.",
+    "icone": "Shield"
+  },
+  {
+    "id": "belas",
+    "nome": "Belas",
+    "descricao": "Ministério feminino de edificação e comunhão.",
+    "descricaoCompleta": "O ministério Belas reúne as mulheres da igreja em torno da Palavra de Deus e do amor mútuo. Realizamos estudos bíblicos, encontros de oração, eventos especiais e ações de cuidado pastoral. Nosso desejo é que cada mulher cresça em santidade e seja fortalecida para sua vocação.",
+    "icone": "Heart"
+  },
+  {
+    "id": "kids",
+    "nome": "Kids",
+    "descricao": "Ministério infantil para crianças de 0 a 11 anos.",
+    "descricaoCompleta": "O TBB Kids é responsável pelo cuidado e ensino bíblico das crianças durante os cultos e atividades da igreja. Com classes divididas por faixa etária, utilizamos recursos lúdicos e pedagógicos para ensinar as verdades do evangelho de forma adequada a cada fase do desenvolvimento infantil.",
+    "icone": "Baby"
+  }
+]
