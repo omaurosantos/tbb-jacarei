@@ -1,10 +1,39 @@
+import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
-import SectionTitle from "@/components/SectionTitle";
-import { User, Camera } from "lucide-react";
-import pastoresData from "@/data/pastores.json";
-import type { Pastor } from "@/types";
+import { Users, Target, Eye, BookOpen, UserCheck } from "lucide-react";
 
-const pastores = pastoresData as Pastor[];
+const sections = [
+  {
+    to: "/igreja/quem-somos",
+    icon: Users,
+    titulo: "Quem Somos",
+    descricao: "Conheça a identidade e os valores do Templo Batista Bíblico."
+  },
+  {
+    to: "/igreja/missao",
+    icon: Target,
+    titulo: "Nossa Missão",
+    descricao: "O propósito que nos move como comunidade de fé."
+  },
+  {
+    to: "/igreja/visao",
+    icon: Eye,
+    titulo: "Nossa Visão",
+    descricao: "O grande desafio que temos pela frente."
+  },
+  {
+    to: "/igreja/o-que-cremos",
+    icon: BookOpen,
+    titulo: "O Que Cremos",
+    descricao: "As doutrinas que fundamentam nossa fé e prática."
+  },
+  {
+    to: "/igreja/pastores",
+    icon: UserCheck,
+    titulo: "Pastores",
+    descricao: "Conheça a liderança pastoral da igreja."
+  },
+];
 
 const Igreja = () => {
   return (
@@ -19,116 +48,27 @@ const Igreja = () => {
         </div>
       </section>
 
-      {/* Quem Somos */}
+      {/* Cards de navegação */}
       <section className="py-16 md:py-20 bg-background">
-        <div className="container max-w-4xl">
-          <SectionTitle title="Quem Somos" />
-          <div className="prose prose-lg max-w-none text-muted-foreground">
-            <p>
-              O Templo Batista Bíblico de Jacareí é uma igreja evangélica de confissão batista, 
-              fundamentada nas Escrituras Sagradas como única regra de fé e prática. Fundada em 1985, 
-              nossa comunidade tem crescido pela graça de Deus, servindo à cidade de Jacareí e região.
-            </p>
-            <p>
-              Somos uma igreja comprometida com a exposição fiel da Palavra de Deus, o discipulado 
-              de novos crentes, a comunhão entre os irmãos e o testemunho do evangelho em nossa cidade 
-              e até os confins da terra.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Visão e Missão */}
-      <section className="py-16 md:py-20 bg-secondary">
         <div className="container">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
-            <div className="bg-card p-8 rounded-lg border border-border">
-              <h3 className="font-display text-xl font-semibold text-primary mb-4">Nossa Visão</h3>
-              <p className="text-muted-foreground">
-                Ser uma igreja que glorifica a Deus pela proclamação do evangelho, formação de 
-                discípulos maduros e transformação da comunidade ao nosso redor pelo poder do 
-                Espírito Santo.
-              </p>
-            </div>
-            <div className="bg-card p-8 rounded-lg border border-border">
-              <h3 className="font-display text-xl font-semibold text-primary mb-4">Nossa Missão</h3>
-              <p className="text-muted-foreground">
-                Proclamar o evangelho de Jesus Cristo, fazer discípulos de todas as nações, 
-                equipar os santos para a obra do ministério e demonstrar o amor de Deus 
-                através do serviço à comunidade.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* O que cremos */}
-      <section className="py-16 md:py-20 bg-background">
-        <div className="container max-w-4xl">
-          <SectionTitle title="O que Cremos" />
-          <div className="space-y-6">
-            {[
-              {
-                titulo: "As Escrituras",
-                texto: "Cremos que a Bíblia é a Palavra de Deus, verbalmente inspirada, inerrante nos manuscritos originais e a autoridade final em todas as questões de fé e conduta."
-              },
-              {
-                titulo: "Deus",
-                texto: "Cremos em um só Deus, eternamente existente em três pessoas: Pai, Filho e Espírito Santo, iguais em essência, poder e glória."
-              },
-              {
-                titulo: "Jesus Cristo",
-                texto: "Cremos no Senhor Jesus Cristo, na sua divindade, nascimento virginal, vida sem pecado, morte vicária e expiatória, ressurreição corporal, ascensão ao céu e segunda vinda pessoal e visível."
-              },
-              {
-                titulo: "A Salvação",
-                texto: "Cremos que a salvação é pela graça mediante a fé, à parte de obras, e que todos os que creem em Jesus Cristo são justificados, regenerados e selados pelo Espírito Santo."
-              },
-              {
-                titulo: "A Igreja",
-                texto: "Cremos na igreja como o corpo de Cristo, composta por todos os regenerados, e na igreja local como a expressão visível dessa comunidade, ordenada para o culto, edificação e missão."
-              }
-            ].map((item, index) => (
-              <div key={index} className="border-l-4 border-primary pl-6">
-                <h4 className="font-display font-semibold text-foreground">{item.titulo}</h4>
-                <p className="mt-2 text-muted-foreground">{item.texto}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pastores */}
-      <section className="py-16 md:py-20 bg-secondary">
-        <div className="container">
-          <SectionTitle 
-            title="Nossos Pastores" 
-            subtitle="Conheça a liderança pastoral do Templo Batista Bíblico."
-          />
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {pastores.map((pastor) => (
-              <div key={pastor.id} className="bg-card border border-border rounded-lg p-6 text-center">
-                {/* Foto placeholder */}
-                <div className="mx-auto mb-4 w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                  {pastor.foto ? (
-                    <img 
-                      src={pastor.foto} 
-                      alt={pastor.nome} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center text-primary/40">
-                      <Camera className="h-8 w-8 mb-1" />
-                      <span className="text-xs">Adicionar foto</span>
-                    </div>
-                  )}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {sections.map((section, index) => (
+              <Link
+                key={section.to}
+                to={section.to}
+                className="bg-card border border-border rounded-lg p-6 hover:shadow-lg hover:border-primary/30 transition-all duration-300 group"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="bg-primary/10 rounded-full p-3 w-fit mb-4 group-hover:bg-primary/20 transition-colors">
+                  <section.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h4 className="font-display font-semibold text-foreground">{pastor.nome}</h4>
-                <p className="text-sm text-primary font-medium">{pastor.funcao}</p>
-                {pastor.bio && (
-                  <p className="mt-3 text-sm text-muted-foreground">{pastor.bio}</p>
-                )}
-              </div>
+                <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {section.titulo}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {section.descricao}
+                </p>
+              </Link>
             ))}
           </div>
         </div>
