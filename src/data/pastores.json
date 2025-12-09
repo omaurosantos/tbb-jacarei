@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "nome": "Pr. João Silva",
+    "funcao": "Pastor Titular",
+    "foto": "",
+    "bio": "Pastor João lidera o Templo Batista Bíblico desde 2015. É formado em Teologia pelo Seminário Batista do Sul e possui mestrado em Estudos Bíblicos. Casado com Ana há 20 anos, pai de três filhos."
+  },
+  {
+    "id": "2",
+    "nome": "Pr. Carlos Santos",
+    "funcao": "Pastor Auxiliar",
+    "foto": "",
+    "bio": "Pastor Carlos é responsável pelo discipulado e grupos de crescimento. Formado em Teologia e especialista em Aconselhamento Bíblico. Casado com Maria, pai de dois filhos."
+  }
+]

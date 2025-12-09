@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "titulo": "A Graça Suficiente de Deus",
+    "pregador": "Pr. João Silva",
+    "data": "2024-12-08",
+    "textoBase": "2 Coríntios 12:9",
+    "linkVideo": "https://youtube.com/watch?v=exemplo1"
+  },
+  {
+    "id": "2",
+    "titulo": "Andando pela Fé",
+    "pregador": "Pr. Carlos Santos",
+    "data": "2024-12-01",
+    "textoBase": "Hebreus 11:1-6",
+    "linkVideo": "https://youtube.com/watch?v=exemplo2"
+  },
+  {
+    "id": "3",
+    "titulo": "O Amor de Cristo nos Constrange",
+    "pregador": "Pr. João Silva",
+    "data": "2024-11-24",
+    "textoBase": "2 Coríntios 5:14-21",
+    "linkVideo": "https://youtube.com/watch?v=exemplo3"
+  },
+  {
+    "id": "4",
+    "titulo": "Firmados na Palavra",
+    "pregador": "Pr. Carlos Santos",
+    "data": "2024-11-17",
+    "textoBase": "Salmo 119:105",
+    "linkVideo": "https://youtube.com/watch?v=exemplo4"
+  }
+]
