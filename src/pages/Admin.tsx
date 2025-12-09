@@ -45,6 +45,7 @@ const Admin = () => {
     data: "",
     linkPdf: "",
     resumo: "",
+    classe: "Homens" as "Homens" | "Belas" | "Adolescentes",
   });
 
   const [eventoForm, setEventoForm] = useState({
@@ -78,7 +79,7 @@ const Admin = () => {
     const updated = [newAula, ...aulas];
     setAulas(updated);
     localStorage.setItem("admin_aulas", JSON.stringify(updated));
-    setAulaForm({ titulo: "", professor: "", data: "", linkPdf: "", resumo: "" });
+    setAulaForm({ titulo: "", professor: "", data: "", linkPdf: "", resumo: "", classe: "Homens" });
     toast({ title: "Aula de EBD cadastrada com sucesso!" });
   };
 
@@ -250,13 +251,26 @@ const Admin = () => {
                       />
                     </div>
                     <div>
+                      <Label htmlFor="aula-classe">Classe</Label>
+                      <select
+                        id="aula-classe"
+                        value={aulaForm.classe}
+                        onChange={(e) => setAulaForm({ ...aulaForm, classe: e.target.value as "Homens" | "Belas" | "Adolescentes" })}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        required
+                      >
+                        <option value="Homens">Homens</option>
+                        <option value="Belas">Belas</option>
+                        <option value="Adolescentes">Adolescentes</option>
+                      </select>
+                    </div>
+                    <div>
                       <Label htmlFor="aula-link">Link do PDF</Label>
                       <Input
                         id="aula-link"
                         value={aulaForm.linkPdf}
                         onChange={(e) => setAulaForm({ ...aulaForm, linkPdf: e.target.value })}
                         placeholder="/materiais/aula.pdf"
-                        required
                       />
                     </div>
                   </div>

@@ -1,16 +1,23 @@
 [
   {
     "id": "1",
-    "nome": "Pr. João Silva",
-    "funcao": "Pastor Titular",
+    "nome": "Sandro Rossetto",
+    "funcao": "Pastor Principal",
     "foto": "",
-    "bio": "Pastor João lidera o Templo Batista Bíblico desde 2015. É formado em Teologia pelo Seminário Batista do Sul e possui mestrado em Estudos Bíblicos. Casado com Ana há 20 anos, pai de três filhos."
+    "bio": ""
   },
   {
     "id": "2",
-    "nome": "Pr. Carlos Santos",
+    "nome": "Rafael Esdras",
     "funcao": "Pastor Auxiliar",
     "foto": "",
-    "bio": "Pastor Carlos é responsável pelo discipulado e grupos de crescimento. Formado em Teologia e especialista em Aconselhamento Bíblico. Casado com Maria, pai de dois filhos."
+    "bio": ""
+  },
+  {
+    "id": "3",
+    "nome": "Jonas Oliveira",
+    "funcao": "Pastor Auxiliar",
+    "foto": "",
+    "bio": ""
   }
 ]

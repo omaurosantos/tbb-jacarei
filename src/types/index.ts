@@ -4,7 +4,8 @@ export interface Sermao {
   pregador: string;
   data: string;
   textoBase: string;
-  linkVideo: string;
+  linkYoutube?: string;
+  linkSpotify?: string;
 }
 
 export interface AulaEBD {
@@ -14,6 +15,7 @@ export interface AulaEBD {
   data: string;
   linkPdf: string;
   resumo: string;
+  classe: "Homens" | "Belas" | "Adolescentes";
 }
 
 export interface Evento {
@@ -40,10 +42,16 @@ export interface Pastor {
   bio: string;
 }
 
+export interface Lider {
+  nome: string;
+}
+
 export interface Ministerio {
   id: string;
   nome: string;
   descricao: string;
   descricaoCompleta: string;
   icone: string;
+  foto?: string;
+  lideres: Lider[];
 }

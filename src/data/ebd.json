@@ -4,23 +4,35 @@
     "titulo": "A Doutrina da Justificação",
     "professor": "Dc. Marcos Oliveira",
     "data": "2024-12-08",
-    "linkPdf": "/materiais/justificacao.pdf",
-    "resumo": "Estudo sobre a doutrina da justificação pela fé, conforme ensinada nas Escrituras e desenvolvida pelos reformadores."
+    "linkPdf": "",
+    "resumo": "Estudo sobre a doutrina da justificação pela fé, conforme ensinada nas Escrituras e desenvolvida pelos reformadores.",
+    "classe": "Homens"
   },
   {
     "id": "2",
-    "titulo": "Os Atributos de Deus - Parte 2",
-    "professor": "Pr. João Silva",
-    "data": "2024-12-01",
-    "linkPdf": "/materiais/atributos-2.pdf",
-    "resumo": "Continuação do estudo sobre os atributos comunicáveis de Deus: amor, santidade e justiça."
+    "titulo": "Mulheres na Bíblia: Exemplos de Fé",
+    "professor": "Cristiane Esdras",
+    "data": "2024-12-08",
+    "linkPdf": "",
+    "resumo": "Estudo sobre mulheres de fé nas Escrituras e o que podemos aprender com seus exemplos.",
+    "classe": "Belas"
   },
   {
     "id": "3",
-    "titulo": "Os Atributos de Deus - Parte 1",
-    "professor": "Pr. João Silva",
-    "data": "2024-11-24",
-    "linkPdf": "/materiais/atributos-1.pdf",
-    "resumo": "Introdução aos atributos incomunicáveis de Deus: eternidade, imutabilidade, onipresença."
+    "titulo": "Vivendo para Cristo na Escola",
+    "professor": "Jonas Oliveira",
+    "data": "2024-12-08",
+    "linkPdf": "",
+    "resumo": "Como viver a fé cristã no ambiente escolar e entre os amigos.",
+    "classe": "Adolescentes"
+  },
+  {
+    "id": "4",
+    "titulo": "Os Atributos de Deus - Parte 2",
+    "professor": "Pr. Rafael Esdras",
+    "data": "2024-12-01",
+    "linkPdf": "",
+    "resumo": "Continuação do estudo sobre os atributos comunicáveis de Deus: amor, santidade e justiça.",
+    "classe": "Homens"
   }
 ]
