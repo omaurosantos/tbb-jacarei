@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import SectionTitle from "@/components/SectionTitle";
-import { User } from "lucide-react";
+import { User, Camera } from "lucide-react";
 import pastoresData from "@/data/pastores.json";
 import type { Pastor } from "@/types";
 
@@ -105,19 +105,29 @@ const Igreja = () => {
             title="Nossos Pastores" 
             subtitle="Conheça a liderança pastoral do Templo Batista Bíblico."
           />
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {pastores.map((pastor) => (
-              <div key={pastor.id} className="bg-card border border-border rounded-lg p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 rounded-full p-4">
-                    <User className="h-8 w-8 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-display font-semibold text-foreground">{pastor.nome}</h4>
-                    <p className="text-sm text-primary font-medium">{pastor.funcao}</p>
-                    <p className="mt-3 text-sm text-muted-foreground">{pastor.bio}</p>
-                  </div>
+              <div key={pastor.id} className="bg-card border border-border rounded-lg p-6 text-center">
+                {/* Foto placeholder */}
+                <div className="mx-auto mb-4 w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                  {pastor.foto ? (
+                    <img 
+                      src={pastor.foto} 
+                      alt={pastor.nome} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-primary/40">
+                      <Camera className="h-8 w-8 mb-1" />
+                      <span className="text-xs">Adicionar foto</span>
+                    </div>
+                  )}
                 </div>
+                <h4 className="font-display font-semibold text-foreground">{pastor.nome}</h4>
+                <p className="text-sm text-primary font-medium">{pastor.funcao}</p>
+                {pastor.bio && (
+                  <p className="mt-3 text-sm text-muted-foreground">{pastor.bio}</p>
+                )}
               </div>
             ))}
           </div>

@@ -1,5 +1,14 @@
 import { Link } from "react-router-dom";
+import { Instagram } from "lucide-react";
 import logoTBB from "@/assets/logo-tbb.jpg";
+
+const instagramLinks = [
+  { handle: "@tbbjacarei", url: "https://instagram.com/tbbjacarei", label: "Igreja" },
+  { handle: "@creser_tbb", url: "https://instagram.com/creser_tbb", label: "Jovens" },
+  { handle: "@conexteen", url: "https://instagram.com/conexteen", label: "Adolescentes" },
+  { handle: "@belastbb", url: "https://instagram.com/belastbb", label: "Mulheres" },
+  { handle: "@expedicao.discipulos", url: "https://instagram.com/expedicao.discipulos", label: "Missões" },
+];
 
 const Footer = () => {
   return (
@@ -19,6 +28,25 @@ const Footer = () => {
               Uma igreja comprometida com a Palavra de Deus, onde vidas são transformadas 
               pelo evangelho de Jesus Cristo.
             </p>
+            
+            {/* Redes Sociais */}
+            <div className="mt-6">
+              <h4 className="font-display font-semibold mb-3 text-sm">Siga-nos no Instagram</h4>
+              <div className="flex flex-wrap gap-2">
+                {instagramLinks.map((link) => (
+                  <a
+                    key={link.handle}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs bg-primary-foreground/10 hover:bg-primary-foreground/20 px-3 py-1.5 rounded-full transition-colors"
+                  >
+                    <Instagram className="h-3.5 w-3.5" />
+                    {link.handle}
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Links rápidos */}
@@ -52,9 +80,9 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-4">Contato</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li>Rua da Igreja, 123</li>
-              <li>Centro, Jacareí - SP</li>
-              <li>CEP: 12300-000</li>
+              <li>R. Carlos de Campos, 447</li>
+              <li>Parque Itamarati, Jacareí - SP</li>
+              <li>CEP: 12307-430</li>
               <li className="pt-2">
                 <a href="mailto:contato@tbbjacarei.com.br" className="hover:text-primary-foreground transition-colors">
                   contato@tbbjacarei.com.br

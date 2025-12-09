@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import SectionTitle from "@/components/SectionTitle";
-import { MapPin, Clock, Phone, Mail } from "lucide-react";
+import { MapPin, Clock, Phone, Mail, Users } from "lucide-react";
 
 const Localizacao = () => {
   return (
@@ -31,9 +31,9 @@ const Localizacao = () => {
                   <div>
                     <h4 className="font-semibold text-foreground">Endereço</h4>
                     <p className="text-muted-foreground mt-1">
-                      Rua da Igreja, 123<br />
-                      Centro, Jacareí - SP<br />
-                      CEP: 12300-000
+                      R. Carlos de Campos, 447<br />
+                      Parque Itamarati, Jacareí - SP<br />
+                      CEP: 12307-430
                     </p>
                   </div>
                 </div>
@@ -43,11 +43,11 @@ const Localizacao = () => {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">Horários dos Cultos</h4>
+                    <h4 className="font-semibold text-foreground">Horários</h4>
                     <ul className="text-muted-foreground mt-1 space-y-1">
-                      <li><strong>Domingo:</strong> 9h (EBD) e 18h30 (Culto)</li>
-                      <li><strong>Quarta-feira:</strong> 19h30 (Reunião de Oração)</li>
-                      <li><strong>Sábado:</strong> 19h (Jovens - quinzenal)</li>
+                      <li><strong>Domingo:</strong> 10h (EBD) e 18h (Culto)</li>
+                      <li><strong>Quarta-feira:</strong> 19h30 (Koinonias - Pequenos Grupos)</li>
+                      <li><strong>Sábado:</strong> 18h (Creser - quinzenal / Conexteen - semanal)</li>
                     </ul>
                   </div>
                 </div>
@@ -83,9 +83,8 @@ const Localizacao = () => {
             {/* Mapa */}
             <div>
               <div className="bg-muted rounded-lg overflow-hidden h-[400px] lg:h-full min-h-[300px]">
-                {/* Placeholder para o Google Maps */}
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3669.5!2d-45.9!3d-23.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDE4JzAwLjAiUyA0NcKwNTQnMDAuMCJX!5e0!3m2!1spt-BR!2sbr!4v1234567890"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3669.123!2d-45.9689!3d-23.2958!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cdcb5e8d4b1e3d%3A0x1234567890abcdef!2sR.%20Carlos%20de%20Campos%2C%20447%20-%20Parque%20Itamarati%2C%20Jacare%C3%AD%20-%20SP%2C%2012307-430!5e0!3m2!1spt-BR!2sbr!4v1234567890"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -104,8 +103,35 @@ const Localizacao = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Koinonias */}
       <section className="py-12 md:py-16 bg-secondary">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center bg-primary/10 rounded-full p-4 mb-4">
+              <Users className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground">
+              Koinonias - Pequenos Grupos
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+              Nossas Koinonias são pequenos grupos que se reúnem semanalmente às <strong>quartas-feiras</strong> nas 
+              casas para comunhão, estudo bíblico e oração. É uma excelente oportunidade para crescer 
+              na fé e desenvolver relacionamentos genuínos.
+            </p>
+            <div className="mt-6 p-4 bg-card rounded-lg border border-border inline-block">
+              <p className="text-sm text-muted-foreground">
+                Quer saber mais ou encontrar um grupo perto de você?
+              </p>
+              <p className="text-lg font-semibold text-primary mt-1">
+                Entre em contato: (12) 3456-7890
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-12 md:py-16 bg-background">
         <div className="container text-center">
           <h2 className="font-display text-2xl font-semibold text-foreground">
             Primeira visita?

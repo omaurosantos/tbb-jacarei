@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import SectionTitle from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sprout, Megaphone, Users, Shield, Heart, Baby } from "lucide-react";
+import { Sprout, Megaphone, Users, Shield, Heart, Baby, Camera } from "lucide-react";
 import ministeriosData from "@/data/ministerios.json";
 import type { Ministerio } from "@/types";
 
@@ -40,26 +40,53 @@ const Ministerios = () => {
             {ministerios.map((ministerio, index) => (
               <div
                 key={ministerio.id}
-                className="bg-card border border-border rounded-lg p-6 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-primary mb-4">
-                  {iconMap[ministerio.icone]}
+                {/* Foto placeholder */}
+                <div className="h-40 bg-primary/5 flex items-center justify-center">
+                  {ministerio.foto ? (
+                    <img 
+                      src={ministerio.foto} 
+                      alt={ministerio.nome} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-primary/30">
+                      <Camera className="h-10 w-10 mb-1" />
+                      <span className="text-xs">Adicionar foto</span>
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-display text-xl font-semibold text-foreground">
-                  {ministerio.nome}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {ministerio.descricao}
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setSelectedMinisterio(ministerio)}
-                >
-                  Saiba mais
-                </Button>
+                
+                <div className="p-6">
+                  <div className="text-primary mb-3">
+                    {iconMap[ministerio.icone]}
+                  </div>
+                  <h3 className="font-display text-xl font-semibold text-foreground">
+                    {ministerio.nome}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {ministerio.descricao}
+                  </p>
+                  
+                  {/* Líderes */}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs text-muted-foreground mb-1">Liderança:</p>
+                    <p className="text-sm text-foreground">
+                      {ministerio.lideres.map(l => l.nome).join(", ")}
+                    </p>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => setSelectedMinisterio(ministerio)}
+                  >
+                    Saiba mais
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -80,6 +107,19 @@ const Ministerios = () => {
               {selectedMinisterio?.descricaoCompleta}
             </DialogDescription>
           </DialogHeader>
+          
+          {selectedMinisterio && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-sm font-medium text-foreground mb-2">Liderança:</p>
+              <ul className="space-y-1">
+                {selectedMinisterio.lideres.map((lider, index) => (
+                  <li key={index} className="text-sm text-muted-foreground">
+                    • {lider.nome}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </Layout>
