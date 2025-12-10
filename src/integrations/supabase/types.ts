@@ -14,16 +14,191 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      aulas_ebd: {
+        Row: {
+          classe: Database["public"]["Enums"]["ebd_classe"]
+          created_at: string
+          created_by: string | null
+          data: string
+          id: string
+          link_pdf: string | null
+          professor: string
+          resumo: string | null
+          texto_base: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          classe: Database["public"]["Enums"]["ebd_classe"]
+          created_at?: string
+          created_by?: string | null
+          data: string
+          id?: string
+          link_pdf?: string | null
+          professor: string
+          resumo?: string | null
+          texto_base?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          classe?: Database["public"]["Enums"]["ebd_classe"]
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          id?: string
+          link_pdf?: string | null
+          professor?: string
+          resumo?: string | null
+          texto_base?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      eventos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: string
+          descricao: string | null
+          horario: string | null
+          id: string
+          local: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: string
+          descricao?: string | null
+          horario?: string | null
+          id?: string
+          local: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          descricao?: string | null
+          horario?: string | null
+          id?: string
+          local?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          nome: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sermoes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: string
+          id: string
+          link_spotify: string | null
+          link_youtube: string | null
+          pregador: string
+          resumo: string | null
+          texto_base: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: string
+          id?: string
+          link_spotify?: string | null
+          link_youtube?: string | null
+          pregador: string
+          resumo?: string | null
+          texto_base?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          id?: string
+          link_spotify?: string | null
+          link_youtube?: string | null
+          pregador?: string
+          resumo?: string | null
+          texto_base?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
+      ebd_classe: "Homens" | "Belas" | "Adolescentes"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +325,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+      ebd_classe: ["Homens", "Belas", "Adolescentes"],
+    },
   },
 } as const
