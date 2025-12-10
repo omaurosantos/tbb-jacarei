@@ -2,13 +2,7 @@ import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
 import logoTBB from "@/assets/logo-tbb.jpg";
 
-const instagramLinks = [
-  { handle: "@tbbjacarei", url: "https://instagram.com/tbbjacarei", label: "Igreja" },
-  { handle: "@creser_tbb", url: "https://instagram.com/creser_tbb", label: "Jovens" },
-  { handle: "@conexteen", url: "https://instagram.com/conexteen", label: "Adolescentes" },
-  { handle: "@belastbb", url: "https://instagram.com/belastbb", label: "Mulheres" },
-  { handle: "@expedicao.discipulos", url: "https://instagram.com/expedicao.discipulos", label: "Missões" },
-];
+const instagramLinks = [{ handle: "@tbbjacarei", url: "https://instagram.com/tbbjacarei", label: "Igreja" }];
 
 const Footer = () => {
   return (
@@ -25,10 +19,10 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-sm text-primary-foreground/80 max-w-md">
-              Uma igreja comprometida com a Palavra de Deus, onde vidas são transformadas 
-              pelo evangelho de Jesus Cristo.
+              Uma igreja comprometida com a Palavra de Deus, onde vidas são transformadas pelo evangelho de Jesus
+              Cristo.
             </p>
-            
+
             {/* Redes Sociais */}
             <div className="mt-6">
               <h4 className="font-display font-semibold mb-3 text-sm">Siga-nos no Instagram</h4>
@@ -54,22 +48,34 @@ const Footer = () => {
             <h4 className="font-display font-semibold mb-4">Links Rápidos</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/igreja" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/igreja"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Sobre a Igreja
                 </Link>
               </li>
               <li>
-                <Link to="/ministerios" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/ministerios"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Ministérios
                 </Link>
               </li>
               <li>
-                <Link to="/recursos" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/recursos"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Sermões
                 </Link>
               </li>
               <li>
-                <Link to="/localizacao" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/localizacao"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Como Chegar
                 </Link>
               </li>
