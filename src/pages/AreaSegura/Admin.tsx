@@ -7,9 +7,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, LogOut } from "lucide-react";
+import { Plus, Trash2, LogOut, Pencil } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
+
+interface Sermao {
+  id: string;
+  titulo: string;
+  pregador: string;
+  data: string;
+  texto_base: string | null;
+  link_youtube: string | null;
+  link_spotify: string | null;
+  resumo: string | null;
+}
+
+interface AulaEBD {
+  id: string;
+  titulo: string;
+  professor: string;
+  data: string;
+  classe: "Homens" | "Belas" | "Adolescentes";
+  texto_base: string | null;
+  link_pdf: string | null;
+  resumo: string | null;
+}
+
+interface Evento {
+  id: string;
+  nome: string;
+  data: string;
+  horario: string | null;
+  local: string;
+  descricao: string | null;
+}
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -20,10 +57,16 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("sermoes");
 
-  // Estados para listas
-  const [sermoes, setSermoes] = useState<any[]>([]);
-  const [aulas, setAulas] = useState<any[]>([]);
-  const [eventos, setEventos] = useState<any[]>([]);
+  // Modal states
+  const [sermaoModal, setSermaoModal] = useState(false);
+  const [aulaModal, setAulaModal] = useState(false);
+  const [eventoModal, setEventoModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Data states
+  const [sermoes, setSermoes] = useState<Sermao[]>([]);
+  const [aulas, setAulas] = useState<AulaEBD[]>([]);
+  const [eventos, setEventos] = useState<Evento[]>([]);
 
   // Form states
   const [sermaoForm, setSermaoForm] = useState({
@@ -55,7 +98,6 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -64,7 +106,6 @@ const Admin = () => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -74,14 +115,12 @@ const Admin = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!loading && !user) {
       navigate("/areasegura/login");
     }
   }, [user, loading, navigate]);
 
-  // Fetch data
   useEffect(() => {
     if (user) {
       fetchData();
@@ -105,34 +144,104 @@ const Admin = () => {
     navigate("/areasegura/login");
   };
 
+  // Reset forms
+  const resetSermaoForm = () => {
+    setSermaoForm({ titulo: "", pregador: "", data: "", texto_base: "", link_youtube: "", link_spotify: "", resumo: "" });
+    setEditingId(null);
+  };
+
+  const resetAulaForm = () => {
+    setAulaForm({ titulo: "", professor: "", data: "", link_pdf: "", resumo: "", texto_base: "", classe: "Homens" });
+    setEditingId(null);
+  };
+
+  const resetEventoForm = () => {
+    setEventoForm({ nome: "", data: "", horario: "", descricao: "", local: "" });
+    setEditingId(null);
+  };
+
+  // Open modal for edit
+  const openEditSermao = (sermao: Sermao) => {
+    setSermaoForm({
+      titulo: sermao.titulo,
+      pregador: sermao.pregador,
+      data: sermao.data,
+      texto_base: sermao.texto_base || "",
+      link_youtube: sermao.link_youtube || "",
+      link_spotify: sermao.link_spotify || "",
+      resumo: sermao.resumo || "",
+    });
+    setEditingId(sermao.id);
+    setSermaoModal(true);
+  };
+
+  const openEditAula = (aula: AulaEBD) => {
+    setAulaForm({
+      titulo: aula.titulo,
+      professor: aula.professor,
+      data: aula.data,
+      classe: aula.classe,
+      texto_base: aula.texto_base || "",
+      link_pdf: aula.link_pdf || "",
+      resumo: aula.resumo || "",
+    });
+    setEditingId(aula.id);
+    setAulaModal(true);
+  };
+
+  const openEditEvento = (evento: Evento) => {
+    setEventoForm({
+      nome: evento.nome,
+      data: evento.data,
+      horario: evento.horario || "",
+      descricao: evento.descricao || "",
+      local: evento.local,
+    });
+    setEditingId(evento.id);
+    setEventoModal(true);
+  };
+
   // Handlers
-  const handleAddSermao = async (e: React.FormEvent) => {
+  const handleSaveSermao = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { error } = await supabase.from("sermoes").insert({
+    const data = {
       titulo: sermaoForm.titulo,
       pregador: sermaoForm.pregador,
       data: sermaoForm.data,
-      texto_base: sermaoForm.texto_base,
+      texto_base: sermaoForm.texto_base || null,
       link_youtube: sermaoForm.link_youtube || null,
       link_spotify: sermaoForm.link_spotify || null,
       resumo: sermaoForm.resumo || null,
-      created_by: user?.id,
-    });
+    };
 
-    if (error) {
-      toast({ title: "Erro ao cadastrar sermão", description: error.message, variant: "destructive" });
+    if (editingId) {
+      const { error } = await supabase.from("sermoes").update(data).eq("id", editingId);
+      if (error) {
+        toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Sermão atualizado!" });
+        setSermaoModal(false);
+        resetSermaoForm();
+        fetchData();
+      }
     } else {
-      toast({ title: "Sermão cadastrado com sucesso!" });
-      setSermaoForm({ titulo: "", pregador: "", data: "", texto_base: "", link_youtube: "", link_spotify: "", resumo: "" });
-      fetchData();
+      const { error } = await supabase.from("sermoes").insert({ ...data, created_by: user?.id });
+      if (error) {
+        toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Sermão cadastrado!" });
+        setSermaoModal(false);
+        resetSermaoForm();
+        fetchData();
+      }
     }
   };
 
-  const handleAddAula = async (e: React.FormEvent) => {
+  const handleSaveAula = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { error } = await supabase.from("aulas_ebd").insert({
+    const data = {
       titulo: aulaForm.titulo,
       professor: aulaForm.professor,
       data: aulaForm.data,
@@ -140,36 +249,62 @@ const Admin = () => {
       texto_base: aulaForm.texto_base || null,
       link_pdf: aulaForm.link_pdf || null,
       resumo: aulaForm.resumo || null,
-      created_by: user?.id,
-    });
+    };
 
-    if (error) {
-      toast({ title: "Erro ao cadastrar aula", description: error.message, variant: "destructive" });
+    if (editingId) {
+      const { error } = await supabase.from("aulas_ebd").update(data).eq("id", editingId);
+      if (error) {
+        toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Aula atualizada!" });
+        setAulaModal(false);
+        resetAulaForm();
+        fetchData();
+      }
     } else {
-      toast({ title: "Aula de EBD cadastrada com sucesso!" });
-      setAulaForm({ titulo: "", professor: "", data: "", link_pdf: "", resumo: "", texto_base: "", classe: "Homens" });
-      fetchData();
+      const { error } = await supabase.from("aulas_ebd").insert({ ...data, created_by: user?.id });
+      if (error) {
+        toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Aula cadastrada!" });
+        setAulaModal(false);
+        resetAulaForm();
+        fetchData();
+      }
     }
   };
 
-  const handleAddEvento = async (e: React.FormEvent) => {
+  const handleSaveEvento = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { error } = await supabase.from("eventos").insert({
+    const data = {
       nome: eventoForm.nome,
       data: eventoForm.data,
       horario: eventoForm.horario || null,
       descricao: eventoForm.descricao || null,
       local: eventoForm.local,
-      created_by: user?.id,
-    });
+    };
 
-    if (error) {
-      toast({ title: "Erro ao cadastrar evento", description: error.message, variant: "destructive" });
+    if (editingId) {
+      const { error } = await supabase.from("eventos").update(data).eq("id", editingId);
+      if (error) {
+        toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Evento atualizado!" });
+        setEventoModal(false);
+        resetEventoForm();
+        fetchData();
+      }
     } else {
-      toast({ title: "Evento cadastrado com sucesso!" });
-      setEventoForm({ nome: "", data: "", horario: "", descricao: "", local: "" });
-      fetchData();
+      const { error } = await supabase.from("eventos").insert({ ...data, created_by: user?.id });
+      if (error) {
+        toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Evento cadastrado!" });
+        setEventoModal(false);
+        resetEventoForm();
+        fetchData();
+      }
     }
   };
 
@@ -201,6 +336,10 @@ const Admin = () => {
       toast({ title: "Evento removido" });
       fetchData();
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString + "T00:00:00").toLocaleDateString("pt-BR");
   };
 
   if (loading) {
@@ -246,92 +385,33 @@ const Admin = () => {
 
             {/* Sermões */}
             <TabsContent value="sermoes">
-              <div className="bg-card border border-border rounded-lg p-6 mb-6">
-                <h3 className="font-display text-lg font-semibold mb-4">Novo Sermão</h3>
-                <form onSubmit={handleAddSermao} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="sermao-titulo">Título</Label>
-                      <Input
-                        id="sermao-titulo"
-                        value={sermaoForm.titulo}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, titulo: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sermao-pregador">Pregador</Label>
-                      <Input
-                        id="sermao-pregador"
-                        value={sermaoForm.pregador}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, pregador: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sermao-data">Data</Label>
-                      <Input
-                        id="sermao-data"
-                        type="date"
-                        value={sermaoForm.data}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, data: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sermao-texto">Texto Base</Label>
-                      <Input
-                        id="sermao-texto"
-                        value={sermaoForm.texto_base}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, texto_base: e.target.value })}
-                        placeholder="Ex: João 3:16"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sermao-youtube">Link YouTube</Label>
-                      <Input
-                        id="sermao-youtube"
-                        value={sermaoForm.link_youtube}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, link_youtube: e.target.value })}
-                        placeholder="https://youtube.com/..."
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sermao-spotify">Link Spotify</Label>
-                      <Input
-                        id="sermao-spotify"
-                        value={sermaoForm.link_spotify}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, link_spotify: e.target.value })}
-                        placeholder="https://open.spotify.com/..."
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="sermao-resumo">Resumo</Label>
-                    <Textarea
-                      id="sermao-resumo"
-                      value={sermaoForm.resumo}
-                      onChange={(e) => setSermaoForm({ ...sermaoForm, resumo: e.target.value })}
-                      placeholder="Resumo do sermão..."
-                    />
-                  </div>
-                  <Button type="submit">
-                    <Plus className="h-4 w-4 mr-2" /> Adicionar Sermão
-                  </Button>
-                </form>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-display text-xl font-semibold">Sermões ({sermoes.length})</h2>
+                <Button onClick={() => { resetSermaoForm(); setSermaoModal(true); }}>
+                  <Plus className="h-4 w-4 mr-2" /> Novo Sermão
+                </Button>
               </div>
 
-              {/* Lista */}
               <div className="space-y-3">
                 {sermoes.map((s) => (
-                  <div key={s.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold">{s.titulo}</p>
-                      <p className="text-sm text-muted-foreground">{s.pregador} • {s.data}</p>
+                  <div key={s.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{s.titulo}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {s.pregador} • {formatDate(s.data)}
+                      </p>
+                      {s.texto_base && (
+                        <p className="text-xs text-muted-foreground mt-1">{s.texto_base}</p>
+                      )}
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteSermao(s.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => openEditSermao(s)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteSermao(s.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {sermoes.length === 0 && (
@@ -342,95 +422,30 @@ const Admin = () => {
 
             {/* EBD */}
             <TabsContent value="ebd">
-              <div className="bg-card border border-border rounded-lg p-6 mb-6">
-                <h3 className="font-display text-lg font-semibold mb-4">Nova Aula de EBD</h3>
-                <form onSubmit={handleAddAula} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="aula-titulo">Título</Label>
-                      <Input
-                        id="aula-titulo"
-                        value={aulaForm.titulo}
-                        onChange={(e) => setAulaForm({ ...aulaForm, titulo: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="aula-professor">Professor</Label>
-                      <Input
-                        id="aula-professor"
-                        value={aulaForm.professor}
-                        onChange={(e) => setAulaForm({ ...aulaForm, professor: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="aula-data">Data</Label>
-                      <Input
-                        id="aula-data"
-                        type="date"
-                        value={aulaForm.data}
-                        onChange={(e) => setAulaForm({ ...aulaForm, data: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="aula-classe">Classe</Label>
-                      <select
-                        id="aula-classe"
-                        value={aulaForm.classe}
-                        onChange={(e) => setAulaForm({ ...aulaForm, classe: e.target.value as "Homens" | "Belas" | "Adolescentes" })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        required
-                      >
-                        <option value="Homens">Homens</option>
-                        <option value="Belas">Belas</option>
-                        <option value="Adolescentes">Adolescentes</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="aula-texto">Texto Base</Label>
-                      <Input
-                        id="aula-texto"
-                        value={aulaForm.texto_base}
-                        onChange={(e) => setAulaForm({ ...aulaForm, texto_base: e.target.value })}
-                        placeholder="Ex: Romanos 8:28"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="aula-link">Link do PDF</Label>
-                      <Input
-                        id="aula-link"
-                        value={aulaForm.link_pdf}
-                        onChange={(e) => setAulaForm({ ...aulaForm, link_pdf: e.target.value })}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="aula-resumo">Resumo</Label>
-                    <Textarea
-                      id="aula-resumo"
-                      value={aulaForm.resumo}
-                      onChange={(e) => setAulaForm({ ...aulaForm, resumo: e.target.value })}
-                    />
-                  </div>
-                  <Button type="submit">
-                    <Plus className="h-4 w-4 mr-2" /> Adicionar Aula
-                  </Button>
-                </form>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-display text-xl font-semibold">Aulas EBD ({aulas.length})</h2>
+                <Button onClick={() => { resetAulaForm(); setAulaModal(true); }}>
+                  <Plus className="h-4 w-4 mr-2" /> Nova Aula
+                </Button>
               </div>
 
               <div className="space-y-3">
                 {aulas.map((a) => (
-                  <div key={a.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold">{a.titulo}</p>
-                      <p className="text-sm text-muted-foreground">{a.professor} • {a.data} • {a.classe}</p>
+                  <div key={a.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{a.titulo}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {a.professor} • {formatDate(a.data)} • {a.classe}
+                      </p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteAula(a.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => openEditAula(a)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteAula(a.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {aulas.length === 0 && (
@@ -441,72 +456,30 @@ const Admin = () => {
 
             {/* Agenda */}
             <TabsContent value="agenda">
-              <div className="bg-card border border-border rounded-lg p-6 mb-6">
-                <h3 className="font-display text-lg font-semibold mb-4">Novo Evento</h3>
-                <form onSubmit={handleAddEvento} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="evento-nome">Nome</Label>
-                      <Input
-                        id="evento-nome"
-                        value={eventoForm.nome}
-                        onChange={(e) => setEventoForm({ ...eventoForm, nome: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="evento-local">Local</Label>
-                      <Input
-                        id="evento-local"
-                        value={eventoForm.local}
-                        onChange={(e) => setEventoForm({ ...eventoForm, local: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="evento-data">Data</Label>
-                      <Input
-                        id="evento-data"
-                        type="date"
-                        value={eventoForm.data}
-                        onChange={(e) => setEventoForm({ ...eventoForm, data: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="evento-horario">Horário</Label>
-                      <Input
-                        id="evento-horario"
-                        type="time"
-                        value={eventoForm.horario}
-                        onChange={(e) => setEventoForm({ ...eventoForm, horario: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="evento-descricao">Descrição</Label>
-                    <Textarea
-                      id="evento-descricao"
-                      value={eventoForm.descricao}
-                      onChange={(e) => setEventoForm({ ...eventoForm, descricao: e.target.value })}
-                    />
-                  </div>
-                  <Button type="submit">
-                    <Plus className="h-4 w-4 mr-2" /> Adicionar Evento
-                  </Button>
-                </form>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-display text-xl font-semibold">Eventos ({eventos.length})</h2>
+                <Button onClick={() => { resetEventoForm(); setEventoModal(true); }}>
+                  <Plus className="h-4 w-4 mr-2" /> Novo Evento
+                </Button>
               </div>
 
               <div className="space-y-3">
                 {eventos.map((e) => (
-                  <div key={e.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold">{e.nome}</p>
-                      <p className="text-sm text-muted-foreground">{e.data} • {e.horario} • {e.local}</p>
+                  <div key={e.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{e.nome}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(e.data)} {e.horario && `• ${e.horario}`} • {e.local}
+                      </p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteEvento(e.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => openEditEvento(e)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteEvento(e.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {eventos.length === 0 && (
@@ -517,6 +490,248 @@ const Admin = () => {
           </Tabs>
         </div>
       </section>
+
+      {/* Modal Sermão */}
+      <Dialog open={sermaoModal} onOpenChange={(open) => { setSermaoModal(open); if (!open) resetSermaoForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Sermão" : "Novo Sermão"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveSermao} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="sermao-titulo">Título *</Label>
+                <Input
+                  id="sermao-titulo"
+                  value={sermaoForm.titulo}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, titulo: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="sermao-pregador">Pregador *</Label>
+                <Input
+                  id="sermao-pregador"
+                  value={sermaoForm.pregador}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, pregador: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="sermao-data">Data *</Label>
+                <Input
+                  id="sermao-data"
+                  type="date"
+                  value={sermaoForm.data}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, data: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="sermao-texto">Texto Base</Label>
+                <Input
+                  id="sermao-texto"
+                  value={sermaoForm.texto_base}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, texto_base: e.target.value })}
+                  placeholder="Ex: João 3:16"
+                />
+              </div>
+              <div>
+                <Label htmlFor="sermao-youtube">Link YouTube</Label>
+                <Input
+                  id="sermao-youtube"
+                  value={sermaoForm.link_youtube}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, link_youtube: e.target.value })}
+                  placeholder="https://youtube.com/..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="sermao-spotify">Link Spotify</Label>
+                <Input
+                  id="sermao-spotify"
+                  value={sermaoForm.link_spotify}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, link_spotify: e.target.value })}
+                  placeholder="https://open.spotify.com/..."
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="sermao-resumo">Resumo</Label>
+                <Textarea
+                  id="sermao-resumo"
+                  value={sermaoForm.resumo}
+                  onChange={(e) => setSermaoForm({ ...sermaoForm, resumo: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setSermaoModal(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {editingId ? "Salvar" : "Adicionar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Aula */}
+      <Dialog open={aulaModal} onOpenChange={(open) => { setAulaModal(open); if (!open) resetAulaForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Aula" : "Nova Aula de EBD"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveAula} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="aula-titulo">Título *</Label>
+                <Input
+                  id="aula-titulo"
+                  value={aulaForm.titulo}
+                  onChange={(e) => setAulaForm({ ...aulaForm, titulo: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="aula-professor">Professor *</Label>
+                <Input
+                  id="aula-professor"
+                  value={aulaForm.professor}
+                  onChange={(e) => setAulaForm({ ...aulaForm, professor: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="aula-data">Data *</Label>
+                <Input
+                  id="aula-data"
+                  type="date"
+                  value={aulaForm.data}
+                  onChange={(e) => setAulaForm({ ...aulaForm, data: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="aula-classe">Classe *</Label>
+                <select
+                  id="aula-classe"
+                  value={aulaForm.classe}
+                  onChange={(e) => setAulaForm({ ...aulaForm, classe: e.target.value as "Homens" | "Belas" | "Adolescentes" })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  required
+                >
+                  <option value="Homens">Homens</option>
+                  <option value="Belas">Belas</option>
+                  <option value="Adolescentes">Adolescentes</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="aula-texto">Texto Base</Label>
+                <Input
+                  id="aula-texto"
+                  value={aulaForm.texto_base}
+                  onChange={(e) => setAulaForm({ ...aulaForm, texto_base: e.target.value })}
+                  placeholder="Ex: Romanos 8:28"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="aula-link">Link do PDF</Label>
+                <Input
+                  id="aula-link"
+                  value={aulaForm.link_pdf}
+                  onChange={(e) => setAulaForm({ ...aulaForm, link_pdf: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="aula-resumo">Resumo</Label>
+                <Textarea
+                  id="aula-resumo"
+                  value={aulaForm.resumo}
+                  onChange={(e) => setAulaForm({ ...aulaForm, resumo: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setAulaModal(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {editingId ? "Salvar" : "Adicionar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Evento */}
+      <Dialog open={eventoModal} onOpenChange={(open) => { setEventoModal(open); if (!open) resetEventoForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Evento" : "Novo Evento"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveEvento} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="evento-nome">Nome *</Label>
+                <Input
+                  id="evento-nome"
+                  value={eventoForm.nome}
+                  onChange={(e) => setEventoForm({ ...eventoForm, nome: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="evento-data">Data *</Label>
+                <Input
+                  id="evento-data"
+                  type="date"
+                  value={eventoForm.data}
+                  onChange={(e) => setEventoForm({ ...eventoForm, data: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="evento-horario">Horário</Label>
+                <Input
+                  id="evento-horario"
+                  type="time"
+                  value={eventoForm.horario}
+                  onChange={(e) => setEventoForm({ ...eventoForm, horario: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="evento-local">Local *</Label>
+                <Input
+                  id="evento-local"
+                  value={eventoForm.local}
+                  onChange={(e) => setEventoForm({ ...eventoForm, local: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="evento-descricao">Descrição</Label>
+                <Textarea
+                  id="evento-descricao"
+                  value={eventoForm.descricao}
+                  onChange={(e) => setEventoForm({ ...eventoForm, descricao: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setEventoModal(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {editingId ? "Salvar" : "Adicionar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
