@@ -113,7 +113,7 @@ const Home = () => {
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container text-center">
           <h2 className="font-display text-2xl md:text-3xl font-semibold">Venha nos conhecer</h2>
-          <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">Domingo às 9h e 18h30 • Quarta às 19h30</p>
+          <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">Domingo às 10h e 18h • Quarta às 19h30</p>
           <Button asChild size="lg" variant="secondary" className="mt-6 font-semibold">
             <Link to="/localizacao">Como chegar</Link>
           </Button>
