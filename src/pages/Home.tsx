@@ -20,17 +20,24 @@ const Home = () => {
         <div className="container">
           <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
             <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Bem-vindo ao<br />Templo Batista Bíblico
+              Bem-vindo ao
+              <br />
+              Templo Batista Bíblico
             </h1>
             <p className="mt-6 text-lg md:text-xl text-primary-foreground/85 max-w-2xl mx-auto">
-              Uma comunidade de fé em Jacareí, SP, comprometida com a Palavra de Deus 
-              e a transformação de vidas pelo evangelho de Jesus Cristo.
+              Uma comunidade de fé em Jacareí, SP, comprometida com a Palavra de Deus e a transformação de vidas pelo
+              evangelho de Jesus Cristo.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" variant="secondary" className="font-semibold">
                 <Link to="/localizacao">Planeje sua visita</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+              >
                 <Link to="/recursos">Assista aos sermões</Link>
               </Button>
             </div>
@@ -41,7 +48,7 @@ const Home = () => {
       {/* Quick Links */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
-          <SectionTitle 
+          <SectionTitle
             title="Conheça nossa igreja"
             subtitle="Descubra quem somos, o que fazemos e como você pode fazer parte."
           />
@@ -65,7 +72,7 @@ const Home = () => {
             <div className="animate-fade-in-delay-2">
               <LinkCard
                 title="Recursos"
-                description="Sermões, estudos, agenda e escalas."
+                description="Sermões, estudos e agenda."
                 to="/recursos"
                 icon={<BookOpen className="h-6 w-6" />}
               />
@@ -85,7 +92,7 @@ const Home = () => {
       {/* Upcoming Events */}
       <section className="py-16 md:py-20 bg-secondary">
         <div className="container">
-          <SectionTitle 
+          <SectionTitle
             title="Próximos eventos"
             subtitle="Fique por dentro do que está acontecendo na nossa comunidade."
           />
@@ -105,12 +112,8 @@ const Home = () => {
       {/* CTA Section */}
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container text-center">
-          <h2 className="font-display text-2xl md:text-3xl font-semibold">
-            Venha nos conhecer
-          </h2>
-          <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">
-            Domingo às 9h e 18h30 • Quarta às 19h30
-          </p>
+          <h2 className="font-display text-2xl md:text-3xl font-semibold">Venha nos conhecer</h2>
+          <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">Domingo às 9h e 18h30 • Quarta às 19h30</p>
           <Button asChild size="lg" variant="secondary" className="mt-6 font-semibold">
             <Link to="/localizacao">Como chegar</Link>
           </Button>

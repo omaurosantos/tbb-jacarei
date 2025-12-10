@@ -22,7 +22,7 @@ const Localizacao = () => {
             {/* Informações */}
             <div>
               <SectionTitle title="Como nos encontrar" centered={false} />
-              
+
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-primary/10 rounded-lg p-3">
@@ -31,8 +31,10 @@ const Localizacao = () => {
                   <div>
                     <h4 className="font-semibold text-foreground">Endereço</h4>
                     <p className="text-muted-foreground mt-1">
-                      R. Carlos de Campos, 447<br />
-                      Parque Itamarati, Jacareí - SP<br />
+                      R. Carlos de Campos, 447
+                      <br />
+                      Parque Itamarati, Jacareí - SP
+                      <br />
                       CEP: 12307-430
                     </p>
                   </div>
@@ -45,9 +47,15 @@ const Localizacao = () => {
                   <div>
                     <h4 className="font-semibold text-foreground">Horários</h4>
                     <ul className="text-muted-foreground mt-1 space-y-1">
-                      <li><strong>Domingo:</strong> 10h (EBD) e 18h (Culto)</li>
-                      <li><strong>Quarta-feira:</strong> 19h30 (Koinonias - Pequenos Grupos)</li>
-                      <li><strong>Sábado:</strong> 18h (Creser - quinzenal / Conexteen - semanal)</li>
+                      <li>
+                        <strong>Domingo:</strong> 10h (EBD) e 18h (Culto)
+                      </li>
+                      <li>
+                        <strong>Quarta-feira:</strong> 19h30 (Koinonias - Pequenos Grupos)
+                      </li>
+                      <li>
+                        <strong>Sábado:</strong> 18h (Creser - quinzenal / Conexteen - semanal)
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -58,9 +66,7 @@ const Localizacao = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">Telefone</h4>
-                    <p className="text-muted-foreground mt-1">
-                      (12) 3456-7890
-                    </p>
+                    <p className="text-muted-foreground mt-1">(12) XXXX-XXXX</p>
                   </div>
                 </div>
 
@@ -114,17 +120,13 @@ const Localizacao = () => {
               Koinonias - Pequenos Grupos
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-              Nossas Koinonias são pequenos grupos que se reúnem semanalmente às <strong>quartas-feiras</strong> nas 
-              casas para comunhão, estudo bíblico e oração. É uma excelente oportunidade para crescer 
-              na fé e desenvolver relacionamentos genuínos.
+              Nossas Koinonias são pequenos grupos que se reúnem semanalmente às <strong>quartas-feiras</strong> nas
+              casas para comunhão, estudo bíblico e oração. É uma excelente oportunidade para crescer na fé e
+              desenvolver relacionamentos genuínos.
             </p>
             <div className="mt-6 p-4 bg-card rounded-lg border border-border inline-block">
-              <p className="text-sm text-muted-foreground">
-                Quer saber mais ou encontrar um grupo perto de você?
-              </p>
-              <p className="text-lg font-semibold text-primary mt-1">
-                Entre em contato: (12) 3456-7890
-              </p>
+              <p className="text-sm text-muted-foreground">Quer saber mais ou encontrar um grupo perto de você?</p>
+              <p className="text-lg font-semibold text-primary mt-1">Entre em contato: (12) XXXX-XXXX</p>
             </div>
           </div>
         </div>
@@ -133,12 +135,9 @@ const Localizacao = () => {
       {/* CTA */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container text-center">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Primeira visita?
-          </h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">Primeira visita?</h2>
           <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-            Será um prazer recebê-lo! Chegue alguns minutos antes para ser recebido por nossa 
-            equipe de recepção. Temos classes de escola bíblica para todas as idades.
+            Será um prazer recebê-lo! Chegue alguns minutos antes para ser recebido por nossa equipe de recepção.
           </p>
         </div>
       </section>
