@@ -1,41 +1,41 @@
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Clock, MapPin } from "lucide-react";
 import type { Evento } from "@/types";
 
 interface EventCardProps {
   evento: Evento;
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString + "T00:00:00");
-  return date.toLocaleDateString("pt-BR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-};
-
 const EventCard = ({ evento }: EventCardProps) => {
+  const date = new Date(evento.data + "T00:00:00");
+  
   return (
-    <div className="bg-card border border-border rounded-lg p-5 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-4">
-        <div className="bg-primary text-primary-foreground rounded-lg p-3 text-center min-w-[60px]">
-          <span className="block text-xs uppercase">
-            {new Date(evento.data + "T00:00:00").toLocaleDateString("pt-BR", { month: "short" })}
+    <div className="bg-card border border-border rounded-xl overflow-hidden card-hover hover:border-primary/20 group">
+      <div className="flex">
+        {/* Date Badge */}
+        <div className="bg-primary text-primary-foreground p-4 flex flex-col items-center justify-center min-w-[80px] group-hover:bg-primary/95 transition-colors">
+          <span className="text-xs uppercase tracking-wide opacity-80">
+            {date.toLocaleDateString("pt-BR", { month: "short" })}
           </span>
-          <span className="block text-2xl font-display font-bold">
-            {new Date(evento.data + "T00:00:00").getDate()}
+          <span className="text-3xl font-display font-bold mt-0.5">
+            {date.getDate()}
           </span>
         </div>
-        <div className="flex-1">
-          <h4 className="font-display font-semibold text-foreground">{evento.titulo}</h4>
-          <p className="text-sm text-muted-foreground mt-1">{evento.descricao}</p>
-          <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+        
+        {/* Content */}
+        <div className="p-5 flex-1">
+          <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+            {evento.titulo}
+          </h3>
+          <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">
+            {evento.descricao}
+          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" />
               {evento.horario}
             </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5" />
               {evento.local}
             </span>
           </div>
