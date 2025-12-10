@@ -1,131 +1,236 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
-import SectionTitle from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2 } from "lucide-react";
-import type { Sermao, AulaEBD, Evento } from "@/types";
+import { Plus, Trash2, LogOut } from "lucide-react";
+import { User, Session } from "@supabase/supabase-js";
 
 const Admin = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("sermoes");
 
-  // Estados para listas locais
-  const [sermoes, setSermoes] = useState<Sermao[]>([]);
-  const [aulas, setAulas] = useState<AulaEBD[]>([]);
-  const [eventos, setEventos] = useState<Evento[]>([]);
-
-  // Carregar dados do localStorage
-  useEffect(() => {
-    const storedSermoes = localStorage.getItem("admin_sermoes");
-    const storedAulas = localStorage.getItem("admin_aulas");
-    const storedEventos = localStorage.getItem("admin_eventos");
-
-    if (storedSermoes) setSermoes(JSON.parse(storedSermoes));
-    if (storedAulas) setAulas(JSON.parse(storedAulas));
-    if (storedEventos) setEventos(JSON.parse(storedEventos));
-  }, []);
+  // Estados para listas
+  const [sermoes, setSermoes] = useState<any[]>([]);
+  const [aulas, setAulas] = useState<any[]>([]);
+  const [eventos, setEventos] = useState<any[]>([]);
 
   // Form states
   const [sermaoForm, setSermaoForm] = useState({
     titulo: "",
     pregador: "",
     data: "",
-    textoBase: "",
-    linkVideo: "",
+    texto_base: "",
+    link_youtube: "",
+    link_spotify: "",
+    resumo: "",
   });
 
   const [aulaForm, setAulaForm] = useState({
     titulo: "",
     professor: "",
     data: "",
-    linkPdf: "",
+    link_pdf: "",
     resumo: "",
+    texto_base: "",
     classe: "Homens" as "Homens" | "Belas" | "Adolescentes",
   });
 
   const [eventoForm, setEventoForm] = useState({
-    titulo: "",
+    nome: "",
     data: "",
     horario: "",
     descricao: "",
     local: "",
   });
 
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/areasegura/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Fetch data
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
+
+  const fetchData = async () => {
+    const [sermoesRes, aulasRes, eventosRes] = await Promise.all([
+      supabase.from("sermoes").select("*").order("data", { ascending: false }),
+      supabase.from("aulas_ebd").select("*").order("data", { ascending: false }),
+      supabase.from("eventos").select("*").order("data", { ascending: false }),
+    ]);
+
+    if (sermoesRes.data) setSermoes(sermoesRes.data);
+    if (aulasRes.data) setAulas(aulasRes.data);
+    if (eventosRes.data) setEventos(eventosRes.data);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/areasegura/login");
+  };
+
   // Handlers
-  const handleAddSermao = (e: React.FormEvent) => {
+  const handleAddSermao = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newSermao: Sermao = {
-      id: Date.now().toString(),
-      ...sermaoForm,
-    };
-    const updated = [newSermao, ...sermoes];
-    setSermoes(updated);
-    localStorage.setItem("admin_sermoes", JSON.stringify(updated));
-    setSermaoForm({ titulo: "", pregador: "", data: "", textoBase: "", linkVideo: "" });
-    toast({ title: "Sermão cadastrado com sucesso!" });
+    
+    const { error } = await supabase.from("sermoes").insert({
+      titulo: sermaoForm.titulo,
+      pregador: sermaoForm.pregador,
+      data: sermaoForm.data,
+      texto_base: sermaoForm.texto_base,
+      link_youtube: sermaoForm.link_youtube || null,
+      link_spotify: sermaoForm.link_spotify || null,
+      resumo: sermaoForm.resumo || null,
+      created_by: user?.id,
+    });
+
+    if (error) {
+      toast({ title: "Erro ao cadastrar sermão", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Sermão cadastrado com sucesso!" });
+      setSermaoForm({ titulo: "", pregador: "", data: "", texto_base: "", link_youtube: "", link_spotify: "", resumo: "" });
+      fetchData();
+    }
   };
 
-  const handleAddAula = (e: React.FormEvent) => {
+  const handleAddAula = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newAula: AulaEBD = {
-      id: Date.now().toString(),
-      ...aulaForm,
-    };
-    const updated = [newAula, ...aulas];
-    setAulas(updated);
-    localStorage.setItem("admin_aulas", JSON.stringify(updated));
-    setAulaForm({ titulo: "", professor: "", data: "", linkPdf: "", resumo: "", classe: "Homens" });
-    toast({ title: "Aula de EBD cadastrada com sucesso!" });
+    
+    const { error } = await supabase.from("aulas_ebd").insert({
+      titulo: aulaForm.titulo,
+      professor: aulaForm.professor,
+      data: aulaForm.data,
+      classe: aulaForm.classe,
+      texto_base: aulaForm.texto_base || null,
+      link_pdf: aulaForm.link_pdf || null,
+      resumo: aulaForm.resumo || null,
+      created_by: user?.id,
+    });
+
+    if (error) {
+      toast({ title: "Erro ao cadastrar aula", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Aula de EBD cadastrada com sucesso!" });
+      setAulaForm({ titulo: "", professor: "", data: "", link_pdf: "", resumo: "", texto_base: "", classe: "Homens" });
+      fetchData();
+    }
   };
 
-  const handleAddEvento = (e: React.FormEvent) => {
+  const handleAddEvento = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newEvento: Evento = {
-      id: Date.now().toString(),
-      ...eventoForm,
-    };
-    const updated = [newEvento, ...eventos];
-    setEventos(updated);
-    localStorage.setItem("admin_eventos", JSON.stringify(updated));
-    setEventoForm({ titulo: "", data: "", horario: "", descricao: "", local: "" });
-    toast({ title: "Evento cadastrado com sucesso!" });
+    
+    const { error } = await supabase.from("eventos").insert({
+      nome: eventoForm.nome,
+      data: eventoForm.data,
+      horario: eventoForm.horario || null,
+      descricao: eventoForm.descricao || null,
+      local: eventoForm.local,
+      created_by: user?.id,
+    });
+
+    if (error) {
+      toast({ title: "Erro ao cadastrar evento", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Evento cadastrado com sucesso!" });
+      setEventoForm({ nome: "", data: "", horario: "", descricao: "", local: "" });
+      fetchData();
+    }
   };
 
-  const handleDeleteSermao = (id: string) => {
-    const updated = sermoes.filter((s) => s.id !== id);
-    setSermoes(updated);
-    localStorage.setItem("admin_sermoes", JSON.stringify(updated));
-    toast({ title: "Sermão removido" });
+  const handleDeleteSermao = async (id: string) => {
+    const { error } = await supabase.from("sermoes").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Sermão removido" });
+      fetchData();
+    }
   };
 
-  const handleDeleteAula = (id: string) => {
-    const updated = aulas.filter((a) => a.id !== id);
-    setAulas(updated);
-    localStorage.setItem("admin_aulas", JSON.stringify(updated));
-    toast({ title: "Aula removida" });
+  const handleDeleteAula = async (id: string) => {
+    const { error } = await supabase.from("aulas_ebd").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Aula removida" });
+      fetchData();
+    }
   };
 
-  const handleDeleteEvento = (id: string) => {
-    const updated = eventos.filter((e) => e.id !== id);
-    setEventos(updated);
-    localStorage.setItem("admin_eventos", JSON.stringify(updated));
-    toast({ title: "Evento removido" });
+  const handleDeleteEvento = async (id: string) => {
+    const { error } = await supabase.from("eventos").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Evento removido" });
+      fetchData();
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Layout>
       {/* Hero */}
       <section className="bg-primary text-primary-foreground py-12 md:py-16">
-        <div className="container text-center">
-          <h1 className="font-display text-2xl md:text-4xl font-bold">Administração</h1>
-          <p className="mt-2 text-primary-foreground/80">
-            Protótipo • Os dados são salvos apenas no navegador
-          </p>
+        <div className="container">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h1 className="font-display text-2xl md:text-4xl font-bold">Administração</h1>
+              <p className="mt-2 text-primary-foreground/80">
+                Gerencie sermões, aulas e eventos da igreja
+              </p>
+            </div>
+            <Button variant="secondary" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" /> Sair
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -177,21 +282,37 @@ const Admin = () => {
                       <Label htmlFor="sermao-texto">Texto Base</Label>
                       <Input
                         id="sermao-texto"
-                        value={sermaoForm.textoBase}
-                        onChange={(e) => setSermaoForm({ ...sermaoForm, textoBase: e.target.value })}
+                        value={sermaoForm.texto_base}
+                        onChange={(e) => setSermaoForm({ ...sermaoForm, texto_base: e.target.value })}
                         placeholder="Ex: João 3:16"
-                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="sermao-youtube">Link YouTube</Label>
+                      <Input
+                        id="sermao-youtube"
+                        value={sermaoForm.link_youtube}
+                        onChange={(e) => setSermaoForm({ ...sermaoForm, link_youtube: e.target.value })}
+                        placeholder="https://youtube.com/..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="sermao-spotify">Link Spotify</Label>
+                      <Input
+                        id="sermao-spotify"
+                        value={sermaoForm.link_spotify}
+                        onChange={(e) => setSermaoForm({ ...sermaoForm, link_spotify: e.target.value })}
+                        placeholder="https://open.spotify.com/..."
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="sermao-link">Link do Vídeo</Label>
-                    <Input
-                      id="sermao-link"
-                      value={sermaoForm.linkVideo}
-                      onChange={(e) => setSermaoForm({ ...sermaoForm, linkVideo: e.target.value })}
-                      placeholder="https://youtube.com/..."
-                      required
+                    <Label htmlFor="sermao-resumo">Resumo</Label>
+                    <Textarea
+                      id="sermao-resumo"
+                      value={sermaoForm.resumo}
+                      onChange={(e) => setSermaoForm({ ...sermaoForm, resumo: e.target.value })}
+                      placeholder="Resumo do sermão..."
                     />
                   </div>
                   <Button type="submit">
@@ -213,6 +334,9 @@ const Admin = () => {
                     </Button>
                   </div>
                 ))}
+                {sermoes.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhum sermão cadastrado</p>
+                )}
               </div>
             </TabsContent>
 
@@ -256,7 +380,7 @@ const Admin = () => {
                         id="aula-classe"
                         value={aulaForm.classe}
                         onChange={(e) => setAulaForm({ ...aulaForm, classe: e.target.value as "Homens" | "Belas" | "Adolescentes" })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         required
                       >
                         <option value="Homens">Homens</option>
@@ -265,12 +389,21 @@ const Admin = () => {
                       </select>
                     </div>
                     <div>
+                      <Label htmlFor="aula-texto">Texto Base</Label>
+                      <Input
+                        id="aula-texto"
+                        value={aulaForm.texto_base}
+                        onChange={(e) => setAulaForm({ ...aulaForm, texto_base: e.target.value })}
+                        placeholder="Ex: Romanos 8:28"
+                      />
+                    </div>
+                    <div>
                       <Label htmlFor="aula-link">Link do PDF</Label>
                       <Input
                         id="aula-link"
-                        value={aulaForm.linkPdf}
-                        onChange={(e) => setAulaForm({ ...aulaForm, linkPdf: e.target.value })}
-                        placeholder="/materiais/aula.pdf"
+                        value={aulaForm.link_pdf}
+                        onChange={(e) => setAulaForm({ ...aulaForm, link_pdf: e.target.value })}
+                        placeholder="https://..."
                       />
                     </div>
                   </div>
@@ -280,7 +413,6 @@ const Admin = () => {
                       id="aula-resumo"
                       value={aulaForm.resumo}
                       onChange={(e) => setAulaForm({ ...aulaForm, resumo: e.target.value })}
-                      required
                     />
                   </div>
                   <Button type="submit">
@@ -294,13 +426,16 @@ const Admin = () => {
                   <div key={a.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start">
                     <div>
                       <p className="font-semibold">{a.titulo}</p>
-                      <p className="text-sm text-muted-foreground">{a.professor} • {a.data}</p>
+                      <p className="text-sm text-muted-foreground">{a.professor} • {a.data} • {a.classe}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => handleDeleteAula(a.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 ))}
+                {aulas.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma aula cadastrada</p>
+                )}
               </div>
             </TabsContent>
 
@@ -311,11 +446,11 @@ const Admin = () => {
                 <form onSubmit={handleAddEvento} className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="evento-titulo">Título</Label>
+                      <Label htmlFor="evento-nome">Nome</Label>
                       <Input
-                        id="evento-titulo"
-                        value={eventoForm.titulo}
-                        onChange={(e) => setEventoForm({ ...eventoForm, titulo: e.target.value })}
+                        id="evento-nome"
+                        value={eventoForm.nome}
+                        onChange={(e) => setEventoForm({ ...eventoForm, nome: e.target.value })}
                         required
                       />
                     </div>
@@ -342,10 +477,9 @@ const Admin = () => {
                       <Label htmlFor="evento-horario">Horário</Label>
                       <Input
                         id="evento-horario"
+                        type="time"
                         value={eventoForm.horario}
                         onChange={(e) => setEventoForm({ ...eventoForm, horario: e.target.value })}
-                        placeholder="19:00"
-                        required
                       />
                     </div>
                   </div>
@@ -355,7 +489,6 @@ const Admin = () => {
                       id="evento-descricao"
                       value={eventoForm.descricao}
                       onChange={(e) => setEventoForm({ ...eventoForm, descricao: e.target.value })}
-                      required
                     />
                   </div>
                   <Button type="submit">
@@ -368,7 +501,7 @@ const Admin = () => {
                 {eventos.map((e) => (
                   <div key={e.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start">
                     <div>
-                      <p className="font-semibold">{e.titulo}</p>
+                      <p className="font-semibold">{e.nome}</p>
                       <p className="text-sm text-muted-foreground">{e.data} • {e.horario} • {e.local}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => handleDeleteEvento(e.id)}>
@@ -376,6 +509,9 @@ const Admin = () => {
                     </Button>
                   </div>
                 ))}
+                {eventos.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">Nenhum evento cadastrado</p>
+                )}
               </div>
             </TabsContent>
           </Tabs>

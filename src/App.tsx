@@ -13,7 +13,8 @@ import Pastores from "./pages/Pastores";
 import Ministerios from "./pages/Ministerios";
 import Recursos from "./pages/Recursos";
 import Localizacao from "./pages/Localizacao";
-import Admin from "./pages/Admin";
+import Login from "./pages/AreaSegura/Login";
+import Admin from "./pages/AreaSegura/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,7 +36,8 @@ const App = () => (
           <Route path="/ministerios" element={<Ministerios />} />
           <Route path="/recursos" element={<Recursos />} />
           <Route path="/localizacao" element={<Localizacao />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/areasegura/login" element={<Login />} />
+          <Route path="/areasegura/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
