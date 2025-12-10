@@ -6,16 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
-import { Eye, EyeOff, Lock, Mail, UserPlus, LogIn } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, LogIn } from "lucide-react";
 import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-});
-
-const signupSchema = loginSchema.extend({
-  nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
 });
 
 const Login = () => {
@@ -25,19 +21,16 @@ const Login = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    nome: "",
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -45,7 +38,6 @@ const Login = () => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -54,7 +46,6 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user && session) {
       navigate("/areasegura/admin");
@@ -63,11 +54,7 @@ const Login = () => {
 
   const validateForm = () => {
     try {
-      if (isSignUp) {
-        signupSchema.parse(formData);
-      } else {
-        loginSchema.parse({ email: formData.email, password: formData.password });
-      }
+      loginSchema.parse({ email: formData.email, password: formData.password });
       setErrors({});
       return true;
     } catch (err) {
@@ -92,60 +79,26 @@ const Login = () => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        const redirectUrl = `${window.location.origin}/`;
-        
-        const { error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              nome: formData.nome,
-            },
-          },
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
 
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast({
-              title: "Email já cadastrado",
-              description: "Tente fazer login ou use outro email.",
-              variant: "destructive",
-            });
-          } else {
-            throw error;
-          }
-        } else {
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
           toast({
-            title: "Conta criada com sucesso!",
-            description: "Você já pode fazer login.",
+            title: "Credenciais inválidas",
+            description: "Email ou senha incorretos.",
+            variant: "destructive",
           });
-          setIsSignUp(false);
-          setFormData({ ...formData, password: "" });
+        } else {
+          throw error;
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
+        toast({
+          title: "Login realizado com sucesso!",
         });
-
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast({
-              title: "Credenciais inválidas",
-              description: "Email ou senha incorretos.",
-              variant: "destructive",
-            });
-          } else {
-            throw error;
-          }
-        } else {
-          toast({
-            title: "Login realizado com sucesso!",
-          });
-          navigate("/areasegura/admin");
-        }
+        navigate("/areasegura/admin");
       }
     } catch (error: any) {
       toast({
@@ -177,27 +130,10 @@ const Login = () => {
         {/* Card */}
         <div className="bg-card border border-border rounded-xl shadow-lg p-6 md:p-8">
           <h2 className="font-display text-xl font-semibold text-center mb-6">
-            {isSignUp ? "Criar Conta" : "Entrar"}
+            Entrar
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome</Label>
-                <Input
-                  id="nome"
-                  type="text"
-                  placeholder="Seu nome completo"
-                  value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  className={errors.nome ? "border-destructive" : ""}
-                />
-                {errors.nome && (
-                  <p className="text-sm text-destructive">{errors.nome}</p>
-                )}
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -245,31 +181,20 @@ const Login = () => {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  {isSignUp ? "Criando conta..." : "Entrando..."}
+                  Entrando...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  {isSignUp ? <UserPlus className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                  {isSignUp ? "Criar Conta" : "Entrar"}
+                  <LogIn className="h-4 w-4" />
+                  Entrar
                 </span>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setErrors({});
-              }}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isSignUp
-                ? "Já tem uma conta? Faça login"
-                : "Não tem conta? Cadastre-se"}
-            </button>
-          </div>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Acesso restrito a usuários autorizados.
+          </p>
         </div>
 
         {/* Back link */}
