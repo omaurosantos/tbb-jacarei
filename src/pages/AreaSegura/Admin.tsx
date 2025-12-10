@@ -13,8 +13,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, LogOut, Pencil } from "lucide-react";
+import { Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 
 interface Sermao {
@@ -48,6 +59,14 @@ interface Evento {
   descricao: string | null;
 }
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  nome: string;
+  email: string;
+  role: "admin" | "editor" | null;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -55,18 +74,29 @@ const Admin = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("sermoes");
 
   // Modal states
   const [sermaoModal, setSermaoModal] = useState(false);
   const [aulaModal, setAulaModal] = useState(false);
   const [eventoModal, setEventoModal] = useState(false);
+  const [userModal, setUserModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Delete confirmation states
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    type: "sermao" | "aula" | "evento" | "user";
+    id: string;
+    name: string;
+  }>({ open: false, type: "sermao", id: "", name: "" });
 
   // Data states
   const [sermoes, setSermoes] = useState<Sermao[]>([]);
   const [aulas, setAulas] = useState<AulaEBD[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
 
   // Form states
   const [sermaoForm, setSermaoForm] = useState({
@@ -97,6 +127,13 @@ const Admin = () => {
     local: "",
   });
 
+  const [userForm, setUserForm] = useState({
+    nome: "",
+    email: "",
+    password: "",
+    role: "editor" as "admin" | "editor",
+  });
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -124,8 +161,21 @@ const Admin = () => {
   useEffect(() => {
     if (user) {
       fetchData();
+      checkAdminRole();
     }
   }, [user]);
+
+  const checkAdminRole = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    
+    setIsAdmin(!!data);
+  };
 
   const fetchData = async () => {
     const [sermoesRes, aulasRes, eventosRes] = await Promise.all([
@@ -137,6 +187,24 @@ const Admin = () => {
     if (sermoesRes.data) setSermoes(sermoesRes.data);
     if (aulasRes.data) setAulas(aulasRes.data);
     if (eventosRes.data) setEventos(eventosRes.data);
+
+    // Fetch users if admin
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, user_id, nome, email");
+
+    if (profilesData) {
+      const { data: rolesData } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      const usersWithRoles = profilesData.map((p) => ({
+        ...p,
+        role: rolesData?.find((r) => r.user_id === p.user_id)?.role || null,
+      }));
+
+      setUsers(usersWithRoles);
+    }
   };
 
   const handleLogout = async () => {
@@ -160,7 +228,11 @@ const Admin = () => {
     setEditingId(null);
   };
 
-  // Open modal for edit
+  const resetUserForm = () => {
+    setUserForm({ nome: "", email: "", password: "", role: "editor" });
+  };
+
+  // Open modals for edit
   const openEditSermao = (sermao: Sermao) => {
     setSermaoForm({
       titulo: sermao.titulo,
@@ -199,6 +271,54 @@ const Admin = () => {
     });
     setEditingId(evento.id);
     setEventoModal(true);
+  };
+
+  // Confirmation dialogs
+  const confirmDelete = (type: "sermao" | "aula" | "evento" | "user", id: string, name: string) => {
+    setDeleteDialog({ open: true, type, id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    const { type, id } = deleteDialog;
+    
+    if (type === "sermao") {
+      const { error } = await supabase.from("sermoes").delete().eq("id", id);
+      if (error) {
+        toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Sermão removido" });
+        fetchData();
+      }
+    } else if (type === "aula") {
+      const { error } = await supabase.from("aulas_ebd").delete().eq("id", id);
+      if (error) {
+        toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Aula removida" });
+        fetchData();
+      }
+    } else if (type === "evento") {
+      const { error } = await supabase.from("eventos").delete().eq("id", id);
+      if (error) {
+        toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Evento removido" });
+        fetchData();
+      }
+    } else if (type === "user") {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "delete", userId: id },
+      });
+      
+      if (error || data?.error) {
+        toast({ title: "Erro ao remover", description: data?.error || error?.message, variant: "destructive" });
+      } else {
+        toast({ title: "Usuário removido" });
+        fetchData();
+      }
+    }
+
+    setDeleteDialog({ open: false, type: "sermao", id: "", name: "" });
   };
 
   // Handlers
@@ -308,32 +428,38 @@ const Admin = () => {
     }
   };
 
-  const handleDeleteSermao = async (id: string) => {
-    const { error } = await supabase.from("sermoes").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { data, error } = await supabase.functions.invoke("manage-users", {
+      body: {
+        action: "create",
+        email: userForm.email,
+        password: userForm.password,
+        nome: userForm.nome,
+        role: userForm.role,
+      },
+    });
+
+    if (error || data?.error) {
+      toast({ title: "Erro ao criar usuário", description: data?.error || error?.message, variant: "destructive" });
     } else {
-      toast({ title: "Sermão removido" });
+      toast({ title: "Usuário criado com sucesso!" });
+      setUserModal(false);
+      resetUserForm();
       fetchData();
     }
   };
 
-  const handleDeleteAula = async (id: string) => {
-    const { error } = await supabase.from("aulas_ebd").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Aula removida" });
-      fetchData();
-    }
-  };
+  const handleUpdateUserRole = async (userId: string, newRole: "admin" | "editor") => {
+    const { data, error } = await supabase.functions.invoke("manage-users", {
+      body: { action: "update-role", userId, role: newRole },
+    });
 
-  const handleDeleteEvento = async (id: string) => {
-    const { error } = await supabase.from("eventos").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+    if (error || data?.error) {
+      toast({ title: "Erro ao atualizar", description: data?.error || error?.message, variant: "destructive" });
     } else {
-      toast({ title: "Evento removido" });
+      toast({ title: "Role atualizada!" });
       fetchData();
     }
   };
@@ -377,10 +503,11 @@ const Admin = () => {
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className={`grid w-full mb-8 ${isAdmin ? "grid-cols-4" : "grid-cols-3"}`}>
               <TabsTrigger value="sermoes">Sermões</TabsTrigger>
               <TabsTrigger value="ebd">Aulas EBD</TabsTrigger>
               <TabsTrigger value="agenda">Agenda</TabsTrigger>
+              {isAdmin && <TabsTrigger value="usuarios">Usuários</TabsTrigger>}
             </TabsList>
 
             {/* Sermões */}
@@ -408,7 +535,7 @@ const Admin = () => {
                       <Button variant="ghost" size="icon" onClick={() => openEditSermao(s)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteSermao(s.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("sermao", s.id, s.titulo)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
@@ -442,7 +569,7 @@ const Admin = () => {
                       <Button variant="ghost" size="icon" onClick={() => openEditAula(a)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteAula(a.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("aula", a.id, a.titulo)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
@@ -476,7 +603,7 @@ const Admin = () => {
                       <Button variant="ghost" size="icon" onClick={() => openEditEvento(e)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteEvento(e.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("evento", e.id, e.nome)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
@@ -487,9 +614,78 @@ const Admin = () => {
                 )}
               </div>
             </TabsContent>
+
+            {/* Usuários */}
+            {isAdmin && (
+              <TabsContent value="usuarios">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="font-display text-xl font-semibold">Usuários ({users.length})</h2>
+                  <Button onClick={() => { resetUserForm(); setUserModal(true); }}>
+                    <Plus className="h-4 w-4 mr-2" /> Novo Usuário
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {users.map((u) => (
+                    <div key={u.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-center gap-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          {u.role === "admin" ? (
+                            <Shield className="h-5 w-5 text-primary" />
+                          ) : (
+                            <UserIcon className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold truncate">{u.nome}</p>
+                          <p className="text-sm text-muted-foreground truncate">{u.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <select
+                          value={u.role || "editor"}
+                          onChange={(e) => handleUpdateUserRole(u.user_id, e.target.value as "admin" | "editor")}
+                          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                          disabled={u.user_id === user?.id}
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="editor">Editor</option>
+                        </select>
+                        {u.user_id !== user?.id && (
+                          <Button variant="ghost" size="icon" onClick={() => confirmDelete("user", u.user_id, u.nome)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {users.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">Nenhum usuário cadastrado</p>
+                  )}
+                </div>
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </section>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>"{deleteDialog.name}"</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Modal Sermão */}
       <Dialog open={sermaoModal} onOpenChange={(open) => { setSermaoModal(open); if (!open) resetSermaoForm(); }}>
@@ -727,6 +923,68 @@ const Admin = () => {
               </Button>
               <Button type="submit">
                 {editingId ? "Salvar" : "Adicionar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Novo Usuário */}
+      <Dialog open={userModal} onOpenChange={(open) => { setUserModal(open); if (!open) resetUserForm(); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Usuário</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateUser} className="space-y-4">
+            <div>
+              <Label htmlFor="user-nome">Nome *</Label>
+              <Input
+                id="user-nome"
+                value={userForm.nome}
+                onChange={(e) => setUserForm({ ...userForm, nome: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="user-email">Email *</Label>
+              <Input
+                id="user-email"
+                type="email"
+                value={userForm.email}
+                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="user-password">Senha *</Label>
+              <Input
+                id="user-password"
+                type="password"
+                value={userForm.password}
+                onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                minLength={6}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="user-role">Permissão *</Label>
+              <select
+                id="user-role"
+                value={userForm.role}
+                onChange={(e) => setUserForm({ ...userForm, role: e.target.value as "admin" | "editor" })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
+              >
+                <option value="editor">Editor</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setUserModal(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                Criar Usuário
               </Button>
             </div>
           </form>
