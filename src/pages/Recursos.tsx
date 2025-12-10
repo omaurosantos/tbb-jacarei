@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, Clock, MapPin, Users } from "lucide-react";
+import { FileText, Clock, MapPin } from "lucide-react";
 import sermoesData from "@/data/sermoes.json";
 import ebdData from "@/data/ebd.json";
 import agendaData from "@/data/agenda.json";
-import escalasData from "@/data/escalas.json";
-import type { Sermao, AulaEBD, Evento, Escala } from "@/types";
+import type { Sermao, AulaEBD, Evento } from "@/types";
 
 const sermoes = (sermoesData as Sermao[]).sort((a, b) => 
   new Date(b.data).getTime() - new Date(a.data).getTime()
@@ -18,10 +18,6 @@ const aulas = (ebdData as AulaEBD[]).sort((a, b) =>
 );
 
 const eventos = (agendaData as Evento[]).sort((a, b) => 
-  new Date(a.data).getTime() - new Date(b.data).getTime()
-);
-
-const escalas = (escalasData as Escala[]).sort((a, b) => 
   new Date(a.data).getTime() - new Date(b.data).getTime()
 );
 
@@ -40,7 +36,14 @@ const classeColors: Record<string, string> = {
 };
 
 const Recursos = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("sermoes");
+
+  useEffect(() => {
+    if (location.hash === "#agenda") {
+      setActiveTab("agenda");
+    }
+  }, [location.hash]);
 
   return (
     <Layout>
@@ -49,7 +52,7 @@ const Recursos = () => {
         <div className="container text-center">
           <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">Recursos</h1>
           <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Acesse sermões, aulas, agenda de eventos e escalas de serviço.
+            Acesse sermões, aulas e agenda de eventos.
           </p>
         </div>
       </section>
@@ -58,11 +61,10 @@ const Recursos = () => {
       <section className="py-12 md:py-16 bg-background">
         <div className="container">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="sermoes">Sermões</TabsTrigger>
               <TabsTrigger value="ebd">Aulas de EBD</TabsTrigger>
               <TabsTrigger value="agenda">Agenda</TabsTrigger>
-              <TabsTrigger value="escalas">Escalas</TabsTrigger>
             </TabsList>
 
             {/* Sermões */}
@@ -185,32 +187,6 @@ const Recursos = () => {
               ))}
             </TabsContent>
 
-            {/* Escalas */}
-            <TabsContent value="escalas" className="space-y-4">
-              {escalas.map((escala) => (
-                <div key={escala.id} className="bg-card border border-border rounded-lg p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-secondary text-secondary-foreground rounded-lg p-3 text-center min-w-[60px]">
-                      <span className="block text-xs uppercase">
-                        {new Date(escala.data + "T00:00:00").toLocaleDateString("pt-BR", { month: "short" })}
-                      </span>
-                      <span className="block text-2xl font-display font-bold">
-                        {new Date(escala.data + "T00:00:00").getDate()}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-display text-lg font-semibold text-foreground">
-                        {escala.ministerio}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{escala.participantes.join(", ")}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
           </Tabs>
         </div>
       </section>

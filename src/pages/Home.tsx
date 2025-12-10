@@ -103,7 +103,7 @@ const Home = () => {
           </div>
           <div className="text-center mt-8">
             <Button asChild variant="outline">
-              <Link to="/recursos">Ver agenda completa</Link>
+              <Link to="/recursos#agenda">Ver agenda completa</Link>
             </Button>
           </div>
         </div>
