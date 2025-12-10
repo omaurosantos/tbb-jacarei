@@ -23,10 +23,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon } from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
+import AdminPastores from "@/components/admin/AdminPastores";
+import AdminMinisterios from "@/components/admin/AdminMinisterios";
+import AdminConteudos from "@/components/admin/AdminConteudos";
 
 interface Sermao {
   id: string;
@@ -503,10 +505,13 @@ const Admin = () => {
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className={`grid w-full mb-8 ${isAdmin ? "grid-cols-4" : "grid-cols-3"}`}>
+            <TabsList className="flex flex-wrap h-auto gap-1 mb-8">
               <TabsTrigger value="sermoes">Sermões</TabsTrigger>
               <TabsTrigger value="ebd">Aulas EBD</TabsTrigger>
               <TabsTrigger value="agenda">Agenda</TabsTrigger>
+              <TabsTrigger value="pastores">Pastores</TabsTrigger>
+              <TabsTrigger value="ministerios">Ministérios</TabsTrigger>
+              <TabsTrigger value="conteudos">Conteúdos</TabsTrigger>
               {isAdmin && <TabsTrigger value="usuarios">Usuários</TabsTrigger>}
             </TabsList>
 
@@ -613,6 +618,21 @@ const Admin = () => {
                   <p className="text-center text-muted-foreground py-8">Nenhum evento cadastrado</p>
                 )}
               </div>
+            </TabsContent>
+
+            {/* Pastores */}
+            <TabsContent value="pastores">
+              <AdminPastores userId={user?.id} />
+            </TabsContent>
+
+            {/* Ministérios */}
+            <TabsContent value="ministerios">
+              <AdminMinisterios userId={user?.id} />
+            </TabsContent>
+
+            {/* Conteúdos */}
+            <TabsContent value="conteudos">
+              <AdminConteudos />
             </TabsContent>
 
             {/* Usuários */}

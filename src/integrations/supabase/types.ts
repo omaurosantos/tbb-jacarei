@@ -56,6 +56,39 @@ export type Database = {
         }
         Relationships: []
       }
+      conteudos_paginas: {
+        Row: {
+          conteudo: string
+          conteudo_extra: Json | null
+          id: string
+          pagina: string
+          subtitulo: string | null
+          titulo: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          conteudo: string
+          conteudo_extra?: Json | null
+          id?: string
+          pagina: string
+          subtitulo?: string | null
+          titulo: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          conteudo?: string
+          conteudo_extra?: Json | null
+          id?: string
+          pagina?: string
+          subtitulo?: string | null
+          titulo?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       eventos: {
         Row: {
           created_at: string
@@ -88,6 +121,116 @@ export type Database = {
           id?: string
           local?: string
           nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ministerios: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          created_by: string | null
+          descricao: string
+          descricao_completa: string | null
+          foto_url: string | null
+          icone: string
+          id: string
+          nome: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          created_by?: string | null
+          descricao: string
+          descricao_completa?: string | null
+          foto_url?: string | null
+          icone?: string
+          id?: string
+          nome: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          created_by?: string | null
+          descricao?: string
+          descricao_completa?: string | null
+          foto_url?: string | null
+          icone?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ministerios_lideres: {
+        Row: {
+          id: string
+          ministerio_id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          id?: string
+          ministerio_id: string
+          nome: string
+          ordem?: number
+        }
+        Update: {
+          id?: string
+          ministerio_id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministerios_lideres_ministerio_id_fkey"
+            columns: ["ministerio_id"]
+            isOneToOne: false
+            referencedRelation: "ministerios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pastores: {
+        Row: {
+          ativo: boolean
+          bio: string | null
+          created_at: string
+          created_by: string | null
+          foto_url: string | null
+          funcao: string
+          id: string
+          nome: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          foto_url?: string | null
+          funcao: string
+          id?: string
+          nome: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          foto_url?: string | null
+          funcao?: string
+          id?: string
+          nome?: string
+          ordem?: number
           updated_at?: string
         }
         Relationships: []

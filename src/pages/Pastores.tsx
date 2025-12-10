@@ -1,12 +1,36 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
-import SectionTitle from "@/components/SectionTitle";
 import { Camera } from "lucide-react";
-import pastoresData from "@/data/pastores.json";
-import type { Pastor } from "@/types";
 
-const pastores = pastoresData as Pastor[];
+interface Pastor {
+  id: string;
+  nome: string;
+  funcao: string;
+  bio: string | null;
+  foto_url: string | null;
+}
 
 const Pastores = () => {
+  const [pastores, setPastores] = useState<Pastor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [introText, setIntroText] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [pastoresRes, conteudoRes] = await Promise.all([
+        supabase.from("pastores").select("*").eq("ativo", true).order("ordem", { ascending: true }),
+        supabase.from("conteudos_paginas").select("*").eq("pagina", "pastores").maybeSingle(),
+      ]);
+
+      if (pastoresRes.data) setPastores(pastoresRes.data);
+      if (conteudoRes.data) setIntroText(conteudoRes.data.conteudo);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Layout>
       {/* Hero */}
@@ -33,35 +57,45 @@ const Pastores = () => {
       {/* Pastores */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {pastores.map((pastor) => (
-              <div key={pastor.id} className="bg-card border border-border rounded-lg overflow-hidden text-center">
-                {/* Foto */}
-                <div className="h-48 bg-primary/5 flex items-center justify-center">
-                  {pastor.foto ? (
-                    <img 
-                      src={pastor.foto} 
-                      alt={pastor.nome} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center text-primary/30">
-                      <Camera className="h-12 w-12 mb-2" />
-                      <span className="text-sm">Adicionar foto</span>
-                    </div>
-                  )}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : pastores.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">
+              Nenhum pastor cadastrado no momento.
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {pastores.map((pastor) => (
+                <div key={pastor.id} className="bg-card border border-border rounded-lg overflow-hidden text-center">
+                  {/* Foto */}
+                  <div className="h-48 bg-primary/5 flex items-center justify-center">
+                    {pastor.foto_url ? (
+                      <img 
+                        src={pastor.foto_url} 
+                        alt={pastor.nome} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center text-primary/30">
+                        <Camera className="h-12 w-12 mb-2" />
+                        <span className="text-sm">Sem foto</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-6">
+                    <h3 className="font-display text-xl font-semibold text-foreground">{pastor.nome}</h3>
+                    <p className="text-sm text-primary font-medium mt-1">{pastor.funcao}</p>
+                    {pastor.bio && (
+                      <p className="mt-4 text-sm text-muted-foreground">{pastor.bio}</p>
+                    )}
+                  </div>
                 </div>
-                
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-semibold text-foreground">{pastor.nome}</h3>
-                  <p className="text-sm text-primary font-medium mt-1">{pastor.funcao}</p>
-                  {pastor.bio && (
-                    <p className="mt-4 text-sm text-muted-foreground">{pastor.bio}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
