@@ -2,7 +2,7 @@
   {
     "id": "1",
     "titulo": "Culto de Domingo",
-    "data": "2024-12-15",
+    "data": "2025-12-14",
     "horario": "18:00",
     "descricao": "Culto dominical com ministração da Palavra e louvor congregacional.",
     "local": "Templo Principal"
@@ -10,7 +10,7 @@
   {
     "id": "2",
     "titulo": "EBD - Escola Bíblica Dominical",
-    "data": "2024-12-15",
+    "data": "2025-12-14",
     "horario": "10:00",
     "descricao": "Classes divididas por Homens, Belas e Adolescentes.",
     "local": "Templo Principal"
@@ -18,7 +18,7 @@
   {
     "id": "3",
     "titulo": "Koinonia - Pequenos Grupos",
-    "data": "2024-12-11",
+    "data": "2025-12-10",
     "horario": "19:30",
     "descricao": "Encontro semanal nas casas para comunhão, estudo bíblico e oração.",
     "local": "Casas"
@@ -26,7 +26,7 @@
   {
     "id": "4",
     "titulo": "Conexteen",
-    "data": "2024-12-14",
+    "data": "2025-12-13",
     "horario": "18:00",
     "descricao": "Encontro semanal do ministério de adolescentes.",
     "local": "Sala dos Jovens"
@@ -34,7 +34,7 @@
   {
     "id": "5",
     "titulo": "Creser",
-    "data": "2024-12-14",
+    "data": "2025-12-13",
     "horario": "18:00",
     "descricao": "Encontro quinzenal do ministério de jovens.",
     "local": "Sala dos Jovens"
@@ -42,7 +42,7 @@
   {
     "id": "6",
     "titulo": "Culto de Natal",
-    "data": "2024-12-22",
+    "data": "2025-12-21",
     "horario": "18:00",
     "descricao": "Celebração especial de Natal com cantata e mensagem temática.",
     "local": "Templo Principal"
