@@ -20,10 +20,10 @@ export interface AulaEBD {
 
 export interface Evento {
   id: string;
-  titulo: string;
+  nome: string;
   data: string;
-  horario: string;
-  descricao: string;
+  horario: string | null;
+  descricao: string | null;
   local: string;
 }
 

@@ -35,15 +35,11 @@ interface Ministerio {
   lideres?: { id: string; nome: string; ordem: number }[];
 }
 
-interface AdminMinisteriosProps {
-  userId: string | undefined;
-}
-
 const icones = [
   "Sprout", "Megaphone", "Users", "Shield", "Heart", "Baby", "Music", "BookOpen", "Mic", "Hand"
 ];
 
-const AdminMinisterios = ({ userId }: AdminMinisteriosProps) => {
+const AdminMinisterios = () => {
   const { toast } = useToast();
   const [ministerios, setMinisterios] = useState<Ministerio[]>([]);
   const [modal, setModal] = useState(false);
@@ -184,7 +180,7 @@ const AdminMinisterios = ({ userId }: AdminMinisteriosProps) => {
       const maxOrdem = ministerios.length > 0 ? Math.max(...ministerios.map((m) => m.ordem)) : 0;
       const { data: newMinisterio, error } = await supabase
         .from("ministerios")
-        .insert({ ...data, ordem: maxOrdem + 1, created_by: userId })
+        .insert({ ...data, ordem: maxOrdem + 1 })
         .select()
         .single();
 
