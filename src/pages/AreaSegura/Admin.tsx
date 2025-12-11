@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
@@ -39,6 +39,9 @@ import AdminPastores from "@/components/admin/AdminPastores";
 import AdminMinisterios from "@/components/admin/AdminMinisterios";
 import AdminConteudos from "@/components/admin/AdminConteudos";
 import { cn } from "@/lib/utils";
+import { usePagination } from "@/hooks/use-pagination";
+import { SearchFilter } from "@/components/SearchFilter";
+import { PaginationControls } from "@/components/PaginationControls";
 
 interface Sermao {
   id: string;
@@ -121,6 +124,19 @@ const Admin = () => {
   const [sermoes, setSermoes] = useState<Sermao[]>([]);
   const [aulas, setAulas] = useState<AulaEBD[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
+
+  // Search and filter states
+  const [sermaoSearch, setSermaoSearch] = useState("");
+  const [sermaoMonth, setSermaoMonth] = useState<number | null>(null);
+  const [sermaoYear, setSermaoYear] = useState<number | null>(null);
+
+  const [aulaSearch, setAulaSearch] = useState("");
+  const [aulaMonth, setAulaMonth] = useState<number | null>(null);
+  const [aulaYear, setAulaYear] = useState<number | null>(null);
+
+  const [eventoSearch, setEventoSearch] = useState("");
+  const [eventoMonth, setEventoMonth] = useState<number | null>(null);
+  const [eventoYear, setEventoYear] = useState<number | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
 
   // Form states
@@ -201,6 +217,53 @@ const Admin = () => {
     
     setIsAdmin(!!data);
   };
+
+  // Pagination hooks
+  const sermoesPagination = usePagination({
+    data: sermoes,
+    itemsPerPage: 10,
+    searchFields: ["titulo", "pregador"] as (keyof Sermao)[],
+    searchQuery: sermaoSearch,
+    dateField: "data" as keyof Sermao,
+    filterMonth: sermaoMonth,
+    filterYear: sermaoYear,
+  });
+
+  const aulasPagination = usePagination({
+    data: aulas,
+    itemsPerPage: 10,
+    searchFields: ["titulo", "professor"] as (keyof AulaEBD)[],
+    searchQuery: aulaSearch,
+    dateField: "data" as keyof AulaEBD,
+    filterMonth: aulaMonth,
+    filterYear: aulaYear,
+  });
+
+  const eventosPagination = usePagination({
+    data: eventos,
+    itemsPerPage: 10,
+    searchFields: ["nome", "local"] as (keyof Evento)[],
+    searchQuery: eventoSearch,
+    dateField: "data" as keyof Evento,
+    filterMonth: eventoMonth,
+    filterYear: eventoYear,
+  });
+
+  // Get available years from data
+  const sermaoYears = useMemo(() => {
+    const years = [...new Set(sermoes.map(s => new Date(s.data + "T00:00:00").getFullYear()))];
+    return years.sort((a, b) => b - a);
+  }, [sermoes]);
+
+  const aulaYears = useMemo(() => {
+    const years = [...new Set(aulas.map(a => new Date(a.data + "T00:00:00").getFullYear()))];
+    return years.sort((a, b) => b - a);
+  }, [aulas]);
+
+  const eventoYears = useMemo(() => {
+    const years = [...new Set(eventos.map(e => new Date(e.data + "T00:00:00").getFullYear()))];
+    return years.sort((a, b) => b - a);
+  }, [eventos]);
 
   const fetchData = async () => {
     const [sermoesRes, aulasRes, eventosRes] = await Promise.all([
@@ -582,7 +645,7 @@ const Admin = () => {
           {/* Sermões */}
           {activeSection === "sermoes" && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-display font-bold text-foreground">Sermões</h1>
                   <p className="text-muted-foreground">Gerencie os sermões da igreja</p>
@@ -591,6 +654,17 @@ const Admin = () => {
                   <Plus className="h-4 w-4 mr-2" /> Novo Sermão
                 </Button>
               </div>
+
+              <SearchFilter
+                searchQuery={sermaoSearch}
+                onSearchChange={setSermaoSearch}
+                searchPlaceholder="Buscar por título ou pregador..."
+                filterMonth={sermaoMonth}
+                filterYear={sermaoYear}
+                onMonthChange={setSermaoMonth}
+                onYearChange={setSermaoYear}
+                availableYears={sermaoYears}
+              />
 
               <div className="bg-card rounded-lg border border-border overflow-hidden">
                 <div className="overflow-x-auto">
@@ -604,7 +678,7 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {sermoes.map((s) => (
+                      {sermoesPagination.paginatedData.map((s) => (
                         <tr key={s.id} className="hover:bg-muted/30">
                           <td className="p-4 text-foreground">{s.titulo}</td>
                           <td className="p-4 text-muted-foreground">{s.pregador}</td>
@@ -624,11 +698,21 @@ const Admin = () => {
                     </tbody>
                   </table>
                 </div>
-                {sermoes.length === 0 && (
+                {sermoesPagination.totalItems === 0 && (
                   <div className="p-8 text-center text-muted-foreground">
-                    Nenhum sermão cadastrado.
+                    {sermaoSearch || sermaoMonth !== null || sermaoYear !== null 
+                      ? "Nenhum sermão encontrado com os filtros aplicados." 
+                      : "Nenhum sermão cadastrado."}
                   </div>
                 )}
+                <PaginationControls
+                  currentPage={sermoesPagination.currentPage}
+                  totalPages={sermoesPagination.totalPages}
+                  totalItems={sermoesPagination.totalItems}
+                  onPageChange={sermoesPagination.goToPage}
+                  hasNextPage={sermoesPagination.hasNextPage}
+                  hasPrevPage={sermoesPagination.hasPrevPage}
+                />
               </div>
             </div>
           )}
@@ -636,7 +720,7 @@ const Admin = () => {
           {/* Aulas EBD */}
           {activeSection === "aulas" && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-display font-bold text-foreground">Aulas EBD</h1>
                   <p className="text-muted-foreground">Gerencie as aulas da Escola Bíblica</p>
@@ -645,6 +729,17 @@ const Admin = () => {
                   <Plus className="h-4 w-4 mr-2" /> Nova Aula
                 </Button>
               </div>
+
+              <SearchFilter
+                searchQuery={aulaSearch}
+                onSearchChange={setAulaSearch}
+                searchPlaceholder="Buscar por título ou professor..."
+                filterMonth={aulaMonth}
+                filterYear={aulaYear}
+                onMonthChange={setAulaMonth}
+                onYearChange={setAulaYear}
+                availableYears={aulaYears}
+              />
 
               <div className="bg-card rounded-lg border border-border overflow-hidden">
                 <div className="overflow-x-auto">
@@ -659,7 +754,7 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {aulas.map((a) => (
+                      {aulasPagination.paginatedData.map((a) => (
                         <tr key={a.id} className="hover:bg-muted/30">
                           <td className="p-4 text-foreground">{a.titulo}</td>
                           <td className="p-4 text-muted-foreground">{a.professor}</td>
@@ -684,11 +779,21 @@ const Admin = () => {
                     </tbody>
                   </table>
                 </div>
-                {aulas.length === 0 && (
+                {aulasPagination.totalItems === 0 && (
                   <div className="p-8 text-center text-muted-foreground">
-                    Nenhuma aula cadastrada.
+                    {aulaSearch || aulaMonth !== null || aulaYear !== null 
+                      ? "Nenhuma aula encontrada com os filtros aplicados." 
+                      : "Nenhuma aula cadastrada."}
                   </div>
                 )}
+                <PaginationControls
+                  currentPage={aulasPagination.currentPage}
+                  totalPages={aulasPagination.totalPages}
+                  totalItems={aulasPagination.totalItems}
+                  onPageChange={aulasPagination.goToPage}
+                  hasNextPage={aulasPagination.hasNextPage}
+                  hasPrevPage={aulasPagination.hasPrevPage}
+                />
               </div>
             </div>
           )}
@@ -696,7 +801,7 @@ const Admin = () => {
           {/* Eventos */}
           {activeSection === "eventos" && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-display font-bold text-foreground">Eventos</h1>
                   <p className="text-muted-foreground">Gerencie os eventos e agenda</p>
@@ -705,6 +810,17 @@ const Admin = () => {
                   <Plus className="h-4 w-4 mr-2" /> Novo Evento
                 </Button>
               </div>
+
+              <SearchFilter
+                searchQuery={eventoSearch}
+                onSearchChange={setEventoSearch}
+                searchPlaceholder="Buscar por nome ou local..."
+                filterMonth={eventoMonth}
+                filterYear={eventoYear}
+                onMonthChange={setEventoMonth}
+                onYearChange={setEventoYear}
+                availableYears={eventoYears}
+              />
 
               <div className="bg-card rounded-lg border border-border overflow-hidden">
                 <div className="overflow-x-auto">
@@ -719,7 +835,7 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {eventos.map((ev) => (
+                      {eventosPagination.paginatedData.map((ev) => (
                         <tr key={ev.id} className="hover:bg-muted/30">
                           <td className="p-4 text-foreground">{ev.nome}</td>
                           <td className="p-4 text-muted-foreground">{formatDate(ev.data)}</td>
@@ -740,11 +856,21 @@ const Admin = () => {
                     </tbody>
                   </table>
                 </div>
-                {eventos.length === 0 && (
+                {eventosPagination.totalItems === 0 && (
                   <div className="p-8 text-center text-muted-foreground">
-                    Nenhum evento cadastrado.
+                    {eventoSearch || eventoMonth !== null || eventoYear !== null 
+                      ? "Nenhum evento encontrado com os filtros aplicados." 
+                      : "Nenhum evento cadastrado."}
                   </div>
                 )}
+                <PaginationControls
+                  currentPage={eventosPagination.currentPage}
+                  totalPages={eventosPagination.totalPages}
+                  totalItems={eventosPagination.totalItems}
+                  onPageChange={eventosPagination.goToPage}
+                  hasNextPage={eventosPagination.hasNextPage}
+                  hasPrevPage={eventosPagination.hasPrevPage}
+                />
               </div>
             </div>
           )}
