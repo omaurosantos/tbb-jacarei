@@ -71,6 +71,7 @@ const Recursos = () => {
   const [aulaSearch, setAulaSearch] = useState("");
   const [aulaMonth, setAulaMonth] = useState<number | null>(null);
   const [aulaYear, setAulaYear] = useState<number | null>(null);
+  const [aulaClasse, setAulaClasse] = useState<string | null>(null);
 
   useEffect(() => {
     if (location.hash === "#agenda") {
@@ -109,8 +110,14 @@ const Recursos = () => {
     filterYear: sermaoYear,
   });
 
+  // Filter aulas by class first, then apply pagination
+  const filteredAulasByClass = useMemo(() => {
+    if (!aulaClasse) return aulas;
+    return aulas.filter(a => a.classe === aulaClasse);
+  }, [aulas, aulaClasse]);
+
   const aulasPagination = usePagination({
-    data: aulas,
+    data: filteredAulasByClass,
     itemsPerPage: 8,
     searchFields: ["titulo", "professor"] as (keyof AulaEBD)[],
     searchQuery: aulaSearch,
@@ -246,6 +253,50 @@ const Recursos = () => {
 
                 {/* EBD */}
                 <TabsContent value="ebd" className="space-y-6">
+                  {/* Filtro por classe */}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setAulaClasse(null)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        aulaClasse === null 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      Todas as classes
+                    </button>
+                    <button
+                      onClick={() => setAulaClasse("Homens")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        aulaClasse === "Homens" 
+                          ? "bg-blue-600 text-white" 
+                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      }`}
+                    >
+                      Homens
+                    </button>
+                    <button
+                      onClick={() => setAulaClasse("Belas")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        aulaClasse === "Belas" 
+                          ? "bg-pink-600 text-white" 
+                          : "bg-pink-100 text-pink-800 hover:bg-pink-200"
+                      }`}
+                    >
+                      Belas
+                    </button>
+                    <button
+                      onClick={() => setAulaClasse("Adolescentes")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        aulaClasse === "Adolescentes" 
+                          ? "bg-purple-600 text-white" 
+                          : "bg-purple-100 text-purple-800 hover:bg-purple-200"
+                      }`}
+                    >
+                      Adolescentes
+                    </button>
+                  </div>
+
                   <SearchFilter
                     searchQuery={aulaSearch}
                     onSearchChange={setAulaSearch}
@@ -259,7 +310,7 @@ const Recursos = () => {
 
                   {aulasPagination.totalItems === 0 ? (
                     <p className="text-center text-muted-foreground py-8">
-                      {aulaSearch || aulaMonth !== null || aulaYear !== null 
+                      {aulaSearch || aulaMonth !== null || aulaYear !== null || aulaClasse !== null
                         ? "Nenhuma aula encontrada com os filtros aplicados." 
                         : "Nenhuma aula disponível no momento."}
                     </p>
