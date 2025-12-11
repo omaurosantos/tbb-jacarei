@@ -33,11 +33,7 @@ interface Pastor {
   ativo: boolean;
 }
 
-interface AdminPastoresProps {
-  userId: string | undefined;
-}
-
-const AdminPastores = ({ userId }: AdminPastoresProps) => {
+const AdminPastores = () => {
   const { toast } = useToast();
   const [pastores, setPastores] = useState<Pastor[]>([]);
   const [modal, setModal] = useState(false);
@@ -133,7 +129,6 @@ const AdminPastores = ({ userId }: AdminPastoresProps) => {
       const { error } = await supabase.from("pastores").insert({
         ...data,
         ordem: maxOrdem + 1,
-        created_by: userId,
       });
       if (error) {
         toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });

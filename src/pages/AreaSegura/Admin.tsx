@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -23,12 +22,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon } from "lucide-react";
+import { 
+  Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon, 
+  BookOpen, GraduationCap, Calendar, FileText, Church, Menu
+} from "lucide-react";
 import { User, Session } from "@supabase/supabase-js";
 import AdminPastores from "@/components/admin/AdminPastores";
 import AdminMinisterios from "@/components/admin/AdminMinisterios";
 import AdminConteudos from "@/components/admin/AdminConteudos";
+import { cn } from "@/lib/utils";
 
 interface Sermao {
   id: string;
@@ -69,6 +79,18 @@ interface UserProfile {
   role: "admin" | "editor" | null;
 }
 
+type Section = "sermoes" | "aulas" | "eventos" | "pastores" | "ministerios" | "conteudos" | "usuarios";
+
+const menuItems: { id: Section; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
+  { id: "sermoes", label: "Sermões", icon: <BookOpen className="h-5 w-5" /> },
+  { id: "aulas", label: "Aulas EBD", icon: <GraduationCap className="h-5 w-5" /> },
+  { id: "eventos", label: "Eventos", icon: <Calendar className="h-5 w-5" /> },
+  { id: "pastores", label: "Pastores", icon: <UserIcon className="h-5 w-5" /> },
+  { id: "ministerios", label: "Ministérios", icon: <Church className="h-5 w-5" /> },
+  { id: "conteudos", label: "Conteúdos", icon: <FileText className="h-5 w-5" /> },
+  { id: "usuarios", label: "Usuários", icon: <Users className="h-5 w-5" />, adminOnly: true },
+];
+
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -77,7 +99,8 @@ const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState("sermoes");
+  const [activeSection, setActiveSection] = useState<Section>("sermoes");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Modal states
   const [sermaoModal, setSermaoModal] = useState(false);
@@ -482,212 +505,507 @@ const Admin = () => {
     return null;
   }
 
+  const visibleMenuItems = menuItems.filter(item => !item.adminOnly || isAdmin);
+
   return (
     <Layout>
-      {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-12 md:py-16">
-        <div className="container">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="text-center md:text-left">
-              <h1 className="font-display text-2xl md:text-4xl font-bold">Administração</h1>
-              <p className="mt-2 text-primary-foreground/80">
-                Gerencie sermões, aulas e eventos da igreja
-              </p>
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden fixed bottom-4 right-4 z-50 bg-primary text-primary-foreground p-3 rounded-full shadow-lg"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+
+        {/* Sidebar overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside className={cn(
+          "fixed lg:sticky top-0 left-0 z-40 h-screen lg:h-auto w-64 bg-card border-r border-border transition-transform lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
+          <div className="flex flex-col h-full">
+            {/* Sidebar Header */}
+            <div className="p-4 border-b border-border">
+              <h2 className="font-display text-lg font-semibold text-foreground">Administração</h2>
+              <p className="text-sm text-muted-foreground mt-1">Gerencie o conteúdo</p>
             </div>
-            <Button variant="secondary" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" /> Sair
-            </Button>
+
+            {/* Navigation */}
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+              {visibleMenuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    activeSection === item.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {item.icon}
+                  {item.label}
+                  {item.adminOnly && (
+                    <Shield className="h-3 w-3 ml-auto opacity-60" />
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Sidebar Footer */}
+            <div className="p-4 border-t border-border">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-2" 
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </aside>
 
-      {/* Admin Content */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container max-w-4xl">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex flex-wrap h-auto gap-1 mb-8">
-              <TabsTrigger value="sermoes">Sermões</TabsTrigger>
-              <TabsTrigger value="ebd">Aulas EBD</TabsTrigger>
-              <TabsTrigger value="agenda">Agenda</TabsTrigger>
-              <TabsTrigger value="pastores">Pastores</TabsTrigger>
-              <TabsTrigger value="ministerios">Ministérios</TabsTrigger>
-              <TabsTrigger value="conteudos">Conteúdos</TabsTrigger>
-              {isAdmin && <TabsTrigger value="usuarios">Usuários</TabsTrigger>}
-            </TabsList>
-
-            {/* Sermões */}
-            <TabsContent value="sermoes">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-display text-xl font-semibold">Sermões ({sermoes.length})</h2>
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-background">
+          {/* Sermões */}
+          {activeSection === "sermoes" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-foreground">Sermões</h1>
+                  <p className="text-muted-foreground">Gerencie os sermões da igreja</p>
+                </div>
                 <Button onClick={() => { resetSermaoForm(); setSermaoModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" /> Novo Sermão
                 </Button>
               </div>
 
-              <div className="space-y-3">
-                {sermoes.map((s) => (
-                  <div key={s.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{s.titulo}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {s.pregador} • {formatDate(s.data)}
-                      </p>
-                      {s.texto_base && (
-                        <p className="text-xs text-muted-foreground mt-1">{s.texto_base}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => openEditSermao(s)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("sermao", s.id, s.titulo)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Título</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Pregador</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Data</th>
+                        <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {sermoes.map((s) => (
+                        <tr key={s.id} className="hover:bg-muted/30">
+                          <td className="p-4 text-foreground">{s.titulo}</td>
+                          <td className="p-4 text-muted-foreground">{s.pregador}</td>
+                          <td className="p-4 text-muted-foreground">{formatDate(s.data)}</td>
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="ghost" onClick={() => openEditSermao(s)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => confirmDelete("sermao", s.id, s.titulo)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 {sermoes.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">Nenhum sermão cadastrado</p>
+                  <div className="p-8 text-center text-muted-foreground">
+                    Nenhum sermão cadastrado.
+                  </div>
                 )}
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* EBD */}
-            <TabsContent value="ebd">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-display text-xl font-semibold">Aulas EBD ({aulas.length})</h2>
+          {/* Aulas EBD */}
+          {activeSection === "aulas" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-foreground">Aulas EBD</h1>
+                  <p className="text-muted-foreground">Gerencie as aulas da Escola Bíblica</p>
+                </div>
                 <Button onClick={() => { resetAulaForm(); setAulaModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" /> Nova Aula
                 </Button>
               </div>
 
-              <div className="space-y-3">
-                {aulas.map((a) => (
-                  <div key={a.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{a.titulo}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {a.professor} • {formatDate(a.data)} • {a.classe}
-                      </p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => openEditAula(a)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("aula", a.id, a.titulo)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Título</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Professor</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Classe</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Data</th>
+                        <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {aulas.map((a) => (
+                        <tr key={a.id} className="hover:bg-muted/30">
+                          <td className="p-4 text-foreground">{a.titulo}</td>
+                          <td className="p-4 text-muted-foreground">{a.professor}</td>
+                          <td className="p-4">
+                            <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">
+                              {a.classe}
+                            </span>
+                          </td>
+                          <td className="p-4 text-muted-foreground">{formatDate(a.data)}</td>
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="ghost" onClick={() => openEditAula(a)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => confirmDelete("aula", a.id, a.titulo)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 {aulas.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">Nenhuma aula cadastrada</p>
+                  <div className="p-8 text-center text-muted-foreground">
+                    Nenhuma aula cadastrada.
+                  </div>
                 )}
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Agenda */}
-            <TabsContent value="agenda">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-display text-xl font-semibold">Eventos ({eventos.length})</h2>
+          {/* Eventos */}
+          {activeSection === "eventos" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-foreground">Eventos</h1>
+                  <p className="text-muted-foreground">Gerencie os eventos e agenda</p>
+                </div>
                 <Button onClick={() => { resetEventoForm(); setEventoModal(true); }}>
                   <Plus className="h-4 w-4 mr-2" /> Novo Evento
                 </Button>
               </div>
 
-              <div className="space-y-3">
-                {eventos.map((e) => (
-                  <div key={e.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{e.nome}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(e.data)} {e.horario && `• ${e.horario}`} • {e.local}
-                      </p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => openEditEvento(e)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => confirmDelete("evento", e.id, e.nome)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Nome</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Data</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Horário</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Local</th>
+                        <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {eventos.map((ev) => (
+                        <tr key={ev.id} className="hover:bg-muted/30">
+                          <td className="p-4 text-foreground">{ev.nome}</td>
+                          <td className="p-4 text-muted-foreground">{formatDate(ev.data)}</td>
+                          <td className="p-4 text-muted-foreground">{ev.horario || "-"}</td>
+                          <td className="p-4 text-muted-foreground">{ev.local}</td>
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="ghost" onClick={() => openEditEvento(ev)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => confirmDelete("evento", ev.id, ev.nome)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 {eventos.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">Nenhum evento cadastrado</p>
+                  <div className="p-8 text-center text-muted-foreground">
+                    Nenhum evento cadastrado.
+                  </div>
                 )}
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Pastores */}
-            <TabsContent value="pastores">
-              <AdminPastores userId={user?.id} />
-            </TabsContent>
+          {/* Pastores */}
+          {activeSection === "pastores" && <AdminPastores />}
 
-            {/* Ministérios */}
-            <TabsContent value="ministerios">
-              <AdminMinisterios userId={user?.id} />
-            </TabsContent>
+          {/* Ministérios */}
+          {activeSection === "ministerios" && <AdminMinisterios />}
 
-            {/* Conteúdos */}
-            <TabsContent value="conteudos">
-              <AdminConteudos />
-            </TabsContent>
+          {/* Conteúdos */}
+          {activeSection === "conteudos" && <AdminConteudos />}
 
-            {/* Usuários */}
-            {isAdmin && (
-              <TabsContent value="usuarios">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="font-display text-xl font-semibold">Usuários ({users.length})</h2>
-                  <Button onClick={() => { resetUserForm(); setUserModal(true); }}>
-                    <Plus className="h-4 w-4 mr-2" /> Novo Usuário
-                  </Button>
+          {/* Usuários */}
+          {activeSection === "usuarios" && isAdmin && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-foreground">Usuários</h1>
+                  <p className="text-muted-foreground">Gerencie os usuários do sistema</p>
                 </div>
+                <Button onClick={() => { resetUserForm(); setUserModal(true); }}>
+                  <Plus className="h-4 w-4 mr-2" /> Novo Usuário
+                </Button>
+              </div>
 
-                <div className="space-y-3">
-                  {users.map((u) => (
-                    <div key={u.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-center gap-4">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                          {u.role === "admin" ? (
-                            <Shield className="h-5 w-5 text-primary" />
-                          ) : (
-                            <UserIcon className="h-5 w-5 text-primary" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold truncate">{u.nome}</p>
-                          <p className="text-sm text-muted-foreground truncate">{u.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <select
-                          value={u.role || "editor"}
-                          onChange={(e) => handleUpdateUserRole(u.user_id, e.target.value as "admin" | "editor")}
-                          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-                          disabled={u.user_id === user?.id}
-                        >
-                          <option value="admin">Admin</option>
-                          <option value="editor">Editor</option>
-                        </select>
-                        {u.user_id !== user?.id && (
-                          <Button variant="ghost" size="icon" onClick={() => confirmDelete("user", u.user_id, u.nome)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {users.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">Nenhum usuário cadastrado</p>
-                  )}
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Nome</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Email</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Role</th>
+                        <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {users.map((u) => (
+                        <tr key={u.id} className="hover:bg-muted/30">
+                          <td className="p-4 text-foreground">{u.nome}</td>
+                          <td className="p-4 text-muted-foreground">{u.email}</td>
+                          <td className="p-4">
+                            <Select
+                              value={u.role || "editor"}
+                              onValueChange={(val) => handleUpdateUserRole(u.user_id, val as "admin" | "editor")}
+                            >
+                              <SelectTrigger className="w-28">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="admin">
+                                  <span className="flex items-center gap-2">
+                                    <Shield className="h-3 w-3" /> Admin
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="editor">Editor</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-4 text-right">
+                            {u.user_id !== user?.id && (
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => confirmDelete("user", u.user_id, u.nome)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </TabsContent>
-            )}
-          </Tabs>
-        </div>
-      </section>
+                {users.length === 0 && (
+                  <div className="p-8 text-center text-muted-foreground">
+                    Nenhum usuário cadastrado.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Sermão Modal */}
+      <Dialog open={sermaoModal} onOpenChange={(open) => { setSermaoModal(open); if (!open) resetSermaoForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Sermão" : "Novo Sermão"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveSermao} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="titulo">Título *</Label>
+              <Input id="titulo" value={sermaoForm.titulo} onChange={(e) => setSermaoForm({ ...sermaoForm, titulo: e.target.value })} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="pregador">Pregador *</Label>
+                <Input id="pregador" value={sermaoForm.pregador} onChange={(e) => setSermaoForm({ ...sermaoForm, pregador: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="data">Data *</Label>
+                <Input id="data" type="date" value={sermaoForm.data} onChange={(e) => setSermaoForm({ ...sermaoForm, data: e.target.value })} required />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="texto_base">Texto Base</Label>
+              <Input id="texto_base" value={sermaoForm.texto_base} onChange={(e) => setSermaoForm({ ...sermaoForm, texto_base: e.target.value })} placeholder="Ex: João 3:16" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link_youtube">Link YouTube</Label>
+              <Input id="link_youtube" value={sermaoForm.link_youtube} onChange={(e) => setSermaoForm({ ...sermaoForm, link_youtube: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link_spotify">Link Spotify</Label>
+              <Input id="link_spotify" value={sermaoForm.link_spotify} onChange={(e) => setSermaoForm({ ...sermaoForm, link_spotify: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="resumo">Resumo</Label>
+              <Textarea id="resumo" value={sermaoForm.resumo} onChange={(e) => setSermaoForm({ ...sermaoForm, resumo: e.target.value })} rows={3} />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setSermaoModal(false)}>Cancelar</Button>
+              <Button type="submit">{editingId ? "Salvar" : "Cadastrar"}</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Aula Modal */}
+      <Dialog open={aulaModal} onOpenChange={(open) => { setAulaModal(open); if (!open) resetAulaForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Aula" : "Nova Aula"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveAula} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="aula_titulo">Título *</Label>
+              <Input id="aula_titulo" value={aulaForm.titulo} onChange={(e) => setAulaForm({ ...aulaForm, titulo: e.target.value })} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="professor">Professor *</Label>
+                <Input id="professor" value={aulaForm.professor} onChange={(e) => setAulaForm({ ...aulaForm, professor: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="classe">Classe *</Label>
+                <Select value={aulaForm.classe} onValueChange={(val) => setAulaForm({ ...aulaForm, classe: val as "Homens" | "Belas" | "Adolescentes" })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Homens">Homens</SelectItem>
+                    <SelectItem value="Belas">Belas</SelectItem>
+                    <SelectItem value="Adolescentes">Adolescentes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aula_data">Data *</Label>
+              <Input id="aula_data" type="date" value={aulaForm.data} onChange={(e) => setAulaForm({ ...aulaForm, data: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aula_texto_base">Texto Base</Label>
+              <Input id="aula_texto_base" value={aulaForm.texto_base} onChange={(e) => setAulaForm({ ...aulaForm, texto_base: e.target.value })} placeholder="Ex: Mateus 5:1-12" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link_pdf">Link PDF</Label>
+              <Input id="link_pdf" value={aulaForm.link_pdf} onChange={(e) => setAulaForm({ ...aulaForm, link_pdf: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aula_resumo">Resumo</Label>
+              <Textarea id="aula_resumo" value={aulaForm.resumo} onChange={(e) => setAulaForm({ ...aulaForm, resumo: e.target.value })} rows={3} />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setAulaModal(false)}>Cancelar</Button>
+              <Button type="submit">{editingId ? "Salvar" : "Cadastrar"}</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Evento Modal */}
+      <Dialog open={eventoModal} onOpenChange={(open) => { setEventoModal(open); if (!open) resetEventoForm(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Evento" : "Novo Evento"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveEvento} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="evento_nome">Nome *</Label>
+              <Input id="evento_nome" value={eventoForm.nome} onChange={(e) => setEventoForm({ ...eventoForm, nome: e.target.value })} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="evento_data">Data *</Label>
+                <Input id="evento_data" type="date" value={eventoForm.data} onChange={(e) => setEventoForm({ ...eventoForm, data: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="horario">Horário</Label>
+                <Input id="horario" type="time" value={eventoForm.horario} onChange={(e) => setEventoForm({ ...eventoForm, horario: e.target.value })} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="local">Local *</Label>
+              <Input id="local" value={eventoForm.local} onChange={(e) => setEventoForm({ ...eventoForm, local: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="evento_descricao">Descrição</Label>
+              <Textarea id="evento_descricao" value={eventoForm.descricao} onChange={(e) => setEventoForm({ ...eventoForm, descricao: e.target.value })} rows={3} />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setEventoModal(false)}>Cancelar</Button>
+              <Button type="submit">{editingId ? "Salvar" : "Cadastrar"}</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Modal */}
+      <Dialog open={userModal} onOpenChange={(open) => { setUserModal(open); if (!open) resetUserForm(); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Usuário</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateUser} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user_nome">Nome *</Label>
+              <Input id="user_nome" value={userForm.nome} onChange={(e) => setUserForm({ ...userForm, nome: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user_email">Email *</Label>
+              <Input id="user_email" type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user_password">Senha *</Label>
+              <Input id="user_password" type="password" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} required minLength={6} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user_role">Role *</Label>
+              <Select value={userForm.role} onValueChange={(val) => setUserForm({ ...userForm, role: val as "admin" | "editor" })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">
+                    <span className="flex items-center gap-2">
+                      <Shield className="h-3 w-3" /> Admin
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="editor">Editor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setUserModal(false)}>Cancelar</Button>
+              <Button type="submit">Criar Usuário</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
@@ -695,7 +1013,7 @@ const Admin = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir <strong>"{deleteDialog.name}"</strong>? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir "{deleteDialog.name}"? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -706,310 +1024,6 @@ const Admin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Modal Sermão */}
-      <Dialog open={sermaoModal} onOpenChange={(open) => { setSermaoModal(open); if (!open) resetSermaoForm(); }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Sermão" : "Novo Sermão"}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSaveSermao} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label htmlFor="sermao-titulo">Título *</Label>
-                <Input
-                  id="sermao-titulo"
-                  value={sermaoForm.titulo}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, titulo: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="sermao-pregador">Pregador *</Label>
-                <Input
-                  id="sermao-pregador"
-                  value={sermaoForm.pregador}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, pregador: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="sermao-data">Data *</Label>
-                <Input
-                  id="sermao-data"
-                  type="date"
-                  value={sermaoForm.data}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, data: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="sermao-texto">Texto Base</Label>
-                <Input
-                  id="sermao-texto"
-                  value={sermaoForm.texto_base}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, texto_base: e.target.value })}
-                  placeholder="Ex: João 3:16"
-                />
-              </div>
-              <div>
-                <Label htmlFor="sermao-youtube">Link YouTube</Label>
-                <Input
-                  id="sermao-youtube"
-                  value={sermaoForm.link_youtube}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, link_youtube: e.target.value })}
-                  placeholder="https://youtube.com/..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="sermao-spotify">Link Spotify</Label>
-                <Input
-                  id="sermao-spotify"
-                  value={sermaoForm.link_spotify}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, link_spotify: e.target.value })}
-                  placeholder="https://open.spotify.com/..."
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="sermao-resumo">Resumo</Label>
-                <Textarea
-                  id="sermao-resumo"
-                  value={sermaoForm.resumo}
-                  onChange={(e) => setSermaoForm({ ...sermaoForm, resumo: e.target.value })}
-                  rows={3}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setSermaoModal(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit">
-                {editingId ? "Salvar" : "Adicionar"}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Aula */}
-      <Dialog open={aulaModal} onOpenChange={(open) => { setAulaModal(open); if (!open) resetAulaForm(); }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Aula" : "Nova Aula de EBD"}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSaveAula} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label htmlFor="aula-titulo">Título *</Label>
-                <Input
-                  id="aula-titulo"
-                  value={aulaForm.titulo}
-                  onChange={(e) => setAulaForm({ ...aulaForm, titulo: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="aula-professor">Professor *</Label>
-                <Input
-                  id="aula-professor"
-                  value={aulaForm.professor}
-                  onChange={(e) => setAulaForm({ ...aulaForm, professor: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="aula-data">Data *</Label>
-                <Input
-                  id="aula-data"
-                  type="date"
-                  value={aulaForm.data}
-                  onChange={(e) => setAulaForm({ ...aulaForm, data: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="aula-classe">Classe *</Label>
-                <select
-                  id="aula-classe"
-                  value={aulaForm.classe}
-                  onChange={(e) => setAulaForm({ ...aulaForm, classe: e.target.value as "Homens" | "Belas" | "Adolescentes" })}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  required
-                >
-                  <option value="Homens">Homens</option>
-                  <option value="Belas">Belas</option>
-                  <option value="Adolescentes">Adolescentes</option>
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="aula-texto">Texto Base</Label>
-                <Input
-                  id="aula-texto"
-                  value={aulaForm.texto_base}
-                  onChange={(e) => setAulaForm({ ...aulaForm, texto_base: e.target.value })}
-                  placeholder="Ex: Romanos 8:28"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="aula-link">Link do PDF</Label>
-                <Input
-                  id="aula-link"
-                  value={aulaForm.link_pdf}
-                  onChange={(e) => setAulaForm({ ...aulaForm, link_pdf: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="aula-resumo">Resumo</Label>
-                <Textarea
-                  id="aula-resumo"
-                  value={aulaForm.resumo}
-                  onChange={(e) => setAulaForm({ ...aulaForm, resumo: e.target.value })}
-                  rows={3}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setAulaModal(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit">
-                {editingId ? "Salvar" : "Adicionar"}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Evento */}
-      <Dialog open={eventoModal} onOpenChange={(open) => { setEventoModal(open); if (!open) resetEventoForm(); }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Evento" : "Novo Evento"}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSaveEvento} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label htmlFor="evento-nome">Nome *</Label>
-                <Input
-                  id="evento-nome"
-                  value={eventoForm.nome}
-                  onChange={(e) => setEventoForm({ ...eventoForm, nome: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="evento-data">Data *</Label>
-                <Input
-                  id="evento-data"
-                  type="date"
-                  value={eventoForm.data}
-                  onChange={(e) => setEventoForm({ ...eventoForm, data: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="evento-horario">Horário</Label>
-                <Input
-                  id="evento-horario"
-                  type="time"
-                  value={eventoForm.horario}
-                  onChange={(e) => setEventoForm({ ...eventoForm, horario: e.target.value })}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="evento-local">Local *</Label>
-                <Input
-                  id="evento-local"
-                  value={eventoForm.local}
-                  onChange={(e) => setEventoForm({ ...eventoForm, local: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="evento-descricao">Descrição</Label>
-                <Textarea
-                  id="evento-descricao"
-                  value={eventoForm.descricao}
-                  onChange={(e) => setEventoForm({ ...eventoForm, descricao: e.target.value })}
-                  rows={3}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setEventoModal(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit">
-                {editingId ? "Salvar" : "Adicionar"}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Novo Usuário */}
-      <Dialog open={userModal} onOpenChange={(open) => { setUserModal(open); if (!open) resetUserForm(); }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Novo Usuário</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateUser} className="space-y-4">
-            <div>
-              <Label htmlFor="user-nome">Nome *</Label>
-              <Input
-                id="user-nome"
-                value={userForm.nome}
-                onChange={(e) => setUserForm({ ...userForm, nome: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="user-email">Email *</Label>
-              <Input
-                id="user-email"
-                type="email"
-                value={userForm.email}
-                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="user-password">Senha *</Label>
-              <Input
-                id="user-password"
-                type="password"
-                value={userForm.password}
-                onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                minLength={6}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="user-role">Permissão *</Label>
-              <select
-                id="user-role"
-                value={userForm.role}
-                onChange={(e) => setUserForm({ ...userForm, role: e.target.value as "admin" | "editor" })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                required
-              >
-                <option value="editor">Editor</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setUserModal(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit">
-                Criar Usuário
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </Layout>
   );
 };
