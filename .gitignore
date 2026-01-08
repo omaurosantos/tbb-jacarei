@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Monorepo
+apps/*/node_modules
+packages/*/node_modules
+apps/*/dist
+packages/*/dist
+
+# Database
+*.db
+*.db-journal
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
