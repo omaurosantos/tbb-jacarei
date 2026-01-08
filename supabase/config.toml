@@ -1,4 +1,0 @@
-project_id = "vktncsdkvyxhbqmmmaxf"
-
-[functions.manage-users]
-verify_jwt = false
