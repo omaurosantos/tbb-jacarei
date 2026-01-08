@@ -1,13 +1,31 @@
 # Templo Batista Bíblico - Jacareí, SP
 
-Site institucional da igreja Templo Batista Bíblico de Jacareí, SP. Uma aplicação web moderna construída com React e TypeScript, oferecendo informações sobre a igreja, recursos para membros e um painel administrativo para gerenciamento de conteúdo.
+Site institucional da igreja Templo Batista Bíblico de Jacareí, SP. Aplicação web moderna construída com React e TypeScript, oferecendo informações sobre a igreja, recursos para membros e um painel administrativo para gerenciamento de conteúdo.
 
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![Vite](https://img.shields.io/badge/Vite-5.x-purple)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-cyan)
+![Node.js](https://img.shields.io/badge/Node.js-Express-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma-blue)
 
-## 🛠️ Tecnologias Utilizadas
+## 🏗️ Arquitetura
+
+Este projeto utiliza uma arquitetura **monorepo monolítica** com separação lógica entre frontend e backend:
+
+```
+tbb-jacarei/
+├── apps/
+│   ├── frontend/          # React + Vite + TypeScript
+│   └── backend/           # Node.js + Express + TypeScript
+├── packages/
+│   ├── prisma/            # Prisma ORM (schema e migrations)
+│   └── shared/            # Tipos e utilitários compartilhados
+├── package.json           # Workspace root
+└── pnpm-workspace.yaml    # Configuração do workspace
+```
+
+## 🛠️ Stack Tecnológica
 
 ### Frontend
 - **React 18** - Biblioteca para construção de interfaces
@@ -15,414 +33,247 @@ Site institucional da igreja Templo Batista Bíblico de Jacareí, SP. Uma aplica
 - **Vite** - Build tool e dev server ultra-rápido
 - **React Router DOM** - Roteamento SPA
 - **TanStack React Query** - Gerenciamento de estado do servidor e cache
+- **shadcn/ui** - Componentes UI acessíveis e customizáveis
+
+### Backend
+- **Node.js** - Runtime JavaScript
+- **Express** - Framework web
+- **TypeScript** - Tipagem estática
+- **Prisma** - ORM para PostgreSQL
+- **JWT** - Autenticação baseada em tokens
+- **bcrypt** - Hash de senhas
+- **Zod** - Validação de schemas
+
+### Banco de Dados
+- **PostgreSQL** - Banco de dados relacional
+- **Prisma** - ORM e migrations
+- **Neon** - Hospedagem PostgreSQL (produção)
 
 ### Estilização
 - **Tailwind CSS** - Framework CSS utilitário
-- **shadcn/ui** - Componentes UI acessíveis e customizáveis
 - **Radix UI** - Primitivos de UI sem estilo
 - **Lucide React** - Biblioteca de ícones
-- **tailwindcss-animate** - Animações para Tailwind
 
-### Backend (Lovable Cloud)
-- **Supabase** - Backend as a Service
-  - PostgreSQL Database
-  - Row Level Security (RLS)
-  - Edge Functions
-  - Storage para arquivos/imagens
-  - Autenticação
-
-### Formulários e Validação
-- **React Hook Form** - Gerenciamento de formulários
-- **Zod** - Validação de schemas
-- **@hookform/resolvers** - Integração Zod + React Hook Form
-
-### Utilitários
-- **date-fns** - Manipulação de datas
-- **class-variance-authority** - Variantes de componentes
-- **clsx / tailwind-merge** - Utilitários para classes CSS
-- **Sonner** - Notificações toast
-- **Recharts** - Gráficos (se necessário)
-
----
-
-## 📁 Estrutura de Pastas
+## 📁 Estrutura do Projeto
 
 ```
-├── public/                     # Arquivos estáticos públicos
-│   ├── favicon.ico
-│   ├── placeholder.svg
-│   └── robots.txt
+tbb-jacarei/
+├── apps/
+│   ├── frontend/
+│   │   ├── src/
+│   │   │   ├── components/        # Componentes React
+│   │   │   │   ├── admin/         # Componentes do painel admin
+│   │   │   │   └── ui/            # Componentes shadcn/ui
+│   │   │   ├── contexts/         # Contexts React (Auth)
+│   │   │   ├── hooks/             # Hooks customizados
+│   │   │   ├── lib/
+│   │   │   │   └── api/           # Cliente HTTP e services
+│   │   │   ├── pages/             # Páginas da aplicação
+│   │   │   └── ...
+│   │   └── package.json
+│   │
+│   └── backend/
+│       ├── src/
+│       │   ├── config/            # Configurações (DB, env)
+│       │   ├── middleware/       # Auth, error handling
+│       │   ├── routes/            # Rotas da API
+│       │   ├── services/          # Lógica de negócio
+│       │   ├── repositories/      # Acesso a dados (Prisma)
+│       │   └── utils/              # Utilitários
+│       └── package.json
 │
-├── src/
-│   ├── assets/                 # Assets estáticos (imagens, etc.)
-│   │   └── logo-tbb.jpg        # Logo da igreja
+├── packages/
+│   ├── prisma/
+│   │   ├── schema.prisma          # Schema do banco
+│   │   ├── migrations/            # Migrations do Prisma
+│   │   ├── seed.ts                # Seed de dados iniciais
+│   │   └── package.json
 │   │
-│   ├── components/             # Componentes React reutilizáveis
-│   │   ├── admin/              # Componentes do painel administrativo
-│   │   │   ├── AdminConteudos.tsx    # Gerenciamento de conteúdos das páginas
-│   │   │   ├── AdminMinisterios.tsx  # Gerenciamento de ministérios
-│   │   │   └── AdminPastores.tsx     # Gerenciamento de pastores
-│   │   │
-│   │   ├── ui/                 # Componentes shadcn/ui
-│   │   │   ├── accordion.tsx
-│   │   │   ├── alert-dialog.tsx
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── form.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── select.tsx
-│   │   │   ├── table.tsx
-│   │   │   ├── tabs.tsx
-│   │   │   ├── toast.tsx
-│   │   │   └── ... (outros componentes UI)
-│   │   │
-│   │   ├── EventCard.tsx       # Card de evento
-│   │   ├── Footer.tsx          # Rodapé do site
-│   │   ├── Header.tsx          # Cabeçalho/navegação
-│   │   ├── Layout.tsx          # Layout base das páginas
-│   │   ├── LinkCard.tsx        # Card com link
-│   │   ├── NavLink.tsx         # Link de navegação
-│   │   ├── PaginationControls.tsx  # Controles de paginação
-│   │   ├── SearchFilter.tsx    # Filtro de busca com mês/ano
-│   │   └── SectionTitle.tsx    # Título de seção estilizado
-│   │
-│   ├── data/                   # Dados estáticos (JSON)
-│   │   ├── agenda.json         # Eventos da agenda
-│   │   ├── ebd.json            # Aulas da EBD
-│   │   ├── escalas.json        # Escalas de ministérios
-│   │   ├── ministerios.json    # Lista de ministérios
-│   │   ├── pastores.json       # Dados dos pastores
-│   │   └── sermoes.json        # Sermões
-│   │
-│   ├── hooks/                  # Hooks customizados
-│   │   ├── use-mobile.tsx      # Detecção de dispositivo móvel
-│   │   ├── use-pagination.ts   # Hook de paginação, busca e filtros
-│   │   └── use-toast.ts        # Hook para notificações toast
-│   │
-│   ├── integrations/           # Integrações externas
-│   │   └── supabase/
-│   │       ├── client.ts       # Cliente Supabase (auto-gerado)
-│   │       └── types.ts        # Tipos TypeScript do banco (auto-gerado)
-│   │
-│   ├── lib/                    # Utilitários
-│   │   └── utils.ts            # Funções utilitárias (cn, etc.)
-│   │
-│   ├── pages/                  # Páginas da aplicação
-│   │   ├── AreaSegura/         # Área administrativa
-│   │   │   ├── Admin.tsx       # Painel administrativo
-│   │   │   └── Login.tsx       # Página de login
-│   │   │
-│   │   ├── Home.tsx            # Página inicial
-│   │   ├── Igreja.tsx          # Hub da seção "Igreja"
-│   │   ├── Localizacao.tsx     # Localização e contato
-│   │   ├── Ministerios.tsx     # Lista de ministérios
-│   │   ├── Missao.tsx          # Missão da igreja
-│   │   ├── NotFound.tsx        # Página 404
-│   │   ├── OQueCremos.tsx      # Declaração de fé
-│   │   ├── Pastores.tsx        # Equipe pastoral
-│   │   ├── QuemSomos.tsx       # Sobre a igreja
-│   │   ├── Recursos.tsx        # Sermões, EBD, Agenda
-│   │   └── Visao.tsx           # Visão da igreja
-│   │
-│   ├── types/                  # Definições de tipos
-│   │   └── index.ts            # Interfaces TypeScript
-│   │
-│   ├── App.tsx                 # Componente raiz e rotas
-│   ├── index.css               # Estilos globais e variáveis CSS
-│   ├── main.tsx                # Entry point da aplicação
-│   └── vite-env.d.ts           # Tipos do Vite
+│   └── shared/
+│       ├── src/
+│       │   └── index.ts           # Tipos e constantes compartilhados
+│       └── package.json
 │
-├── supabase/
-│   ├── config.toml             # Configuração do Supabase
-│   ├── functions/              # Edge Functions
-│   │   └── manage-users/       # Função para gerenciar usuários
-│   │       └── index.ts
-│   └── migrations/             # Migrações do banco de dados
-│
-├── .env                        # Variáveis de ambiente (auto-gerado)
-├── eslint.config.js            # Configuração do ESLint
-├── index.html                  # HTML principal
-├── tailwind.config.ts          # Configuração do Tailwind CSS
-├── tsconfig.json               # Configuração do TypeScript
-└── vite.config.ts              # Configuração do Vite
+├── package.json                   # Root workspace
+└── pnpm-workspace.yaml            # Configuração do workspace
 ```
-
----
-
-## 📄 Páginas do Site
-
-### Públicas
-
-| Rota | Página | Descrição |
-|------|--------|-----------|
-| `/` | Home | Página inicial com hero, próximos eventos, horários e informações gerais |
-| `/igreja` | Igreja | Hub com links para subpáginas institucionais |
-| `/igreja/quem-somos` | Quem Somos | História e apresentação da igreja |
-| `/igreja/missao` | Missão | Declaração de missão |
-| `/igreja/visao` | Visão | Declaração de visão |
-| `/igreja/o-que-cremos` | O Que Cremos | Declaração de fé e doutrinas |
-| `/igreja/pastores` | Pastores | Equipe pastoral com fotos e biografias |
-| `/ministerios` | Ministérios | Lista de ministérios da igreja |
-| `/recursos` | Recursos | Sermões, aulas EBD e agenda de eventos |
-| `/localizacao` | Localização | Endereço, mapa e formas de contato |
-
-### Área Segura (Admin)
-
-| Rota | Página | Descrição |
-|------|--------|-----------|
-| `/areasegura/login` | Login | Autenticação de administradores |
-| `/areasegura/admin` | Admin | Painel de gerenciamento de conteúdo |
-
----
-
-## 🗄️ Estrutura do Banco de Dados
-
-### Tabelas Principais
-
-| Tabela | Descrição |
-|--------|-----------|
-| `profiles` | Perfis de usuários autenticados |
-| `user_roles` | Papéis de usuários (admin, editor) |
-| `pastores` | Dados dos pastores |
-| `ministerios` | Ministérios da igreja |
-| `ministerios_lideres` | Líderes de cada ministério |
-| `sermoes` | Sermões com links para YouTube/Spotify |
-| `aulas_ebd` | Aulas da Escola Bíblica Dominical |
-| `eventos` | Eventos e agenda |
-| `conteudos_paginas` | Conteúdos editáveis das páginas institucionais |
-
-### Enums
-
-- `app_role`: `admin`, `editor`
-- `ebd_classe`: `Homens`, `Belas`, `Adolescentes`
-
-### Funções do Banco
-
-- `has_role(user_id, role)` - Verifica se usuário tem determinado papel
-- `is_admin_or_editor(user_id)` - Verifica se é admin ou editor
-- `handle_new_user()` - Trigger para criar perfil ao registrar usuário
-- `update_updated_at_column()` - Trigger para atualizar timestamp
-
----
-
-## 🧩 Tipos TypeScript
-
-```typescript
-// src/types/index.ts
-
-interface Sermao {
-  id: string;
-  titulo: string;
-  pregador: string;
-  data: string;
-  textoBase: string;
-  linkYoutube?: string;
-  linkSpotify?: string;
-}
-
-interface AulaEBD {
-  id: string;
-  titulo: string;
-  professor: string;
-  data: string;
-  linkPdf: string;
-  resumo: string;
-  classe: "Homens" | "Belas" | "Adolescentes";
-}
-
-interface Evento {
-  id: string;
-  nome: string;
-  data: string;
-  horario: string | null;
-  descricao: string | null;
-  local: string;
-}
-
-interface Pastor {
-  id: string;
-  nome: string;
-  funcao: string;
-  foto: string;
-  bio: string;
-}
-
-interface Ministerio {
-  id: string;
-  nome: string;
-  descricao: string;
-  descricaoCompleta: string;
-  icone: string;
-  foto?: string;
-  lideres: Lider[];
-}
-```
-
----
-
-## 🪝 Hooks Customizados
-
-### `usePagination`
-
-Hook completo para paginação, busca e filtros por data.
-
-```typescript
-const {
-  currentPage,
-  totalPages,
-  paginatedData,
-  filteredData,
-  totalItems,
-  goToPage,
-  nextPage,
-  prevPage,
-  hasNextPage,
-  hasPrevPage,
-} = usePagination({
-  data: items,
-  itemsPerPage: 10,
-  searchFields: ["titulo", "autor"],
-  searchQuery: "busca",
-  dateField: "data",
-  filterMonth: 6,
-  filterYear: 2024,
-});
-```
-
-### `useMobile`
-
-Detecta se o dispositivo é móvel baseado na largura da tela.
-
-### `useToast`
-
-Gerencia notificações toast.
-
----
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
 
 - Node.js 18+
-- npm ou bun
+- pnpm (recomendado) ou npm
+- PostgreSQL (local ou Neon)
 
 ### Instalação
 
 ```bash
-# Clone o repositório
-git clone <URL_DO_REPOSITORIO>
+# Instalar dependências de todos os workspaces
+pnpm install
 
-# Entre na pasta
-cd <NOME_DO_PROJETO>
+# Gerar cliente Prisma
+pnpm db:generate
 
-# Instale as dependências
-npm install
-# ou
-bun install
+# Configurar banco de dados
+# Copie .env.example para .env e configure DATABASE_URL
+cp packages/prisma/.env.example packages/prisma/.env
+cp apps/backend/.env.example apps/backend/.env
 
-# Inicie o servidor de desenvolvimento
-npm run dev
-# ou
-bun dev
+# Executar migrations
+pnpm db:migrate
+
+# Popular dados iniciais (opcional)
+pnpm --filter prisma seed
+```
+
+### Desenvolvimento
+
+```bash
+# Frontend (porta 8080)
+pnpm dev
+
+# Backend (porta 3001)
+pnpm dev:backend
+
+# Ambos simultaneamente (em terminais separados)
+pnpm dev & pnpm dev:backend
 ```
 
 ### Scripts Disponíveis
 
 | Script | Descrição |
-|--------|-----------|
-| `npm run dev` | Inicia servidor de desenvolvimento |
-| `npm run build` | Gera build de produção |
-| `npm run preview` | Visualiza build de produção |
-| `npm run lint` | Executa linter |
+|-------|-----------|
+| `pnpm dev` | Inicia frontend em desenvolvimento |
+| `pnpm dev:backend` | Inicia backend em desenvolvimento |
+| `pnpm build` | Build do frontend |
+| `pnpm build:backend` | Build do backend |
+| `pnpm db:generate` | Gera cliente Prisma |
+| `pnpm db:migrate` | Executa migrations |
+| `pnpm db:studio` | Abre Prisma Studio |
 
----
+## 🔐 Autenticação
 
-## 🔐 Autenticação e Autorização
+O sistema utiliza autenticação JWT manual:
 
-O sistema utiliza autenticação via Supabase Auth com:
+- **Login**: `POST /api/auth/login`
+- **Logout**: `POST /api/auth/logout`
+- **Verificar usuário**: `GET /api/auth/me`
 
-- Login por email/senha
-- Papéis de usuário: `admin` e `editor`
-- Row Level Security (RLS) para proteção de dados
-- Auto-confirmação de email habilitada
+### Papéis de Usuário
 
-### Acessando o Painel Admin
+- **admin**: Acesso total ao sistema
+- **editor**: Pode criar/editar conteúdo, mas não gerenciar usuários
 
-1. Acesse `/areasegura/login`
-2. Faça login com credenciais de admin/editor
-3. Será redirecionado para `/areasegura/admin`
+## 📡 API Endpoints
 
-### Funcionalidades do Admin
+### Autenticação
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/me` - Usuário atual
 
-- **Conteúdos**: Editar textos das páginas institucionais
-- **Pastores**: Adicionar, editar e remover pastores
-- **Ministérios**: Gerenciar ministérios e líderes
-- **Sermões**: Cadastrar sermões com links
-- **Aulas EBD**: Gerenciar aulas por classe
-- **Eventos**: Administrar agenda de eventos
+### Conteúdo
+- `GET /api/sermoes` - Listar sermões
+- `POST /api/sermoes` - Criar sermão (admin/editor)
+- `PUT /api/sermoes/:id` - Atualizar sermão (admin/editor)
+- `DELETE /api/sermoes/:id` - Deletar sermão (admin/editor)
 
----
+- `GET /api/aulas-ebd` - Listar aulas EBD
+- `POST /api/aulas-ebd` - Criar aula (admin/editor)
+- `PUT /api/aulas-ebd/:id` - Atualizar aula (admin/editor)
+- `DELETE /api/aulas-ebd/:id` - Deletar aula (admin/editor)
 
-## 📱 Responsividade
+- `GET /api/eventos` - Listar eventos
+- `POST /api/eventos` - Criar evento (admin/editor)
+- `PUT /api/eventos/:id` - Atualizar evento (admin/editor)
+- `DELETE /api/eventos/:id` - Deletar evento (admin/editor)
 
-O site é totalmente responsivo, adaptando-se a:
+- `GET /api/pastores` - Listar pastores
+- `POST /api/pastores` - Criar pastor (admin/editor)
+- `PUT /api/pastores/:id` - Atualizar pastor (admin/editor)
+- `DELETE /api/pastores/:id` - Deletar pastor (admin/editor)
 
-- 📱 Mobile (< 640px)
-- 📱 Tablet (640px - 1024px)
-- 💻 Desktop (> 1024px)
+- `GET /api/ministerios` - Listar ministérios
+- `POST /api/ministerios` - Criar ministério (admin/editor)
+- `PUT /api/ministerios/:id` - Atualizar ministério (admin/editor)
+- `DELETE /api/ministerios/:id` - Deletar ministério (admin/editor)
 
----
+- `GET /api/conteudos` - Listar conteúdos
+- `GET /api/conteudos/:pagina` - Obter conteúdo por página
+- `PUT /api/conteudos/:pagina` - Atualizar conteúdo (admin/editor)
 
-## 🎨 Design System
+### Usuários (Admin only)
+- `GET /api/users` - Listar usuários
+- `POST /api/users` - Criar usuário
+- `PATCH /api/users/:id/role` - Atualizar role
+- `DELETE /api/users/:id` - Deletar usuário
 
-### Cores (CSS Variables)
+### Upload
+- `POST /api/upload` - Upload de arquivos (admin/editor)
 
-```css
---background: /* cor de fundo */
---foreground: /* cor do texto */
---primary: /* cor primária */
---secondary: /* cor secundária */
---muted: /* cor suave */
---accent: /* cor de destaque */
---destructive: /* cor de erro/perigo */
+## 🗄️ Banco de Dados
+
+### Tabelas Principais
+
+- `users` - Usuários do sistema
+- `profiles` - Perfis de usuários
+- `user_roles` - Papéis de usuários (admin, editor)
+- `pastores` - Dados dos pastores
+- `ministerios` - Ministérios da igreja
+- `ministerios_lideres` - Líderes de cada ministério
+- `sermoes` - Sermões com links para YouTube/Spotify
+- `aulas_ebd` - Aulas da Escola Bíblica Dominical
+- `eventos` - Eventos e agenda
+- `conteudos_paginas` - Conteúdos editáveis das páginas institucionais
+
+### Enums
+
+- `AppRole`: `admin`, `editor`
+- `EbdClasse`: `Homens`, `Belas`, `Adolescentes`
+
+## 📝 Variáveis de Ambiente
+
+### Frontend (`apps/frontend/.env`)
+```env
+VITE_API_URL=http://localhost:3001
 ```
 
-### Componentes UI
+### Backend (`apps/backend/.env`)
+```env
+PORT=3001
+NODE_ENV=development
+DATABASE_URL=postgresql://user:password@localhost:5432/tbb_jacarei
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:8080
+UPLOAD_DIR=./public/uploads
+MAX_FILE_SIZE=5242880
+```
 
-Todos os componentes seguem o padrão shadcn/ui com suporte a:
-- Variantes customizáveis
-- Acessibilidade (ARIA)
-- Modo claro/escuro
-- Animações suaves
+### Prisma (`packages/prisma/.env`)
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/tbb_jacarei
+```
 
----
+## 📦 Deploy
 
-## 📦 Storage
+### Backend
+O backend pode ser deployado em plataformas como:
+- Railway
+- Render
+- Fly.io
+- Heroku
 
-O projeto utiliza Supabase Storage com o bucket `fotos` (público) para:
+### Frontend
+O frontend pode ser deployado em:
+- Vercel
+- Netlify
+- Cloudflare Pages
 
-- Fotos de pastores
-- Imagens de ministérios
-- Outros uploads administrativos
-
----
-
-## 🔗 Links Úteis
-
-- [Documentação do React](https://react.dev)
-- [Documentação do Vite](https://vitejs.dev)
-- [Documentação do Tailwind CSS](https://tailwindcss.com)
-- [Documentação do shadcn/ui](https://ui.shadcn.com)
-- [Documentação do Supabase](https://supabase.com/docs)
-- [Documentação do Lovable](https://docs.lovable.dev)
-
----
+### Banco de Dados
+- **Neon** (recomendado) - PostgreSQL serverless
+- Outros provedores PostgreSQL
 
 ## 📄 Licença
 
 Este projeto é de uso exclusivo do Templo Batista Bíblico - Jacareí, SP.
-
----
-
-Desenvolvido com ❤️ usando [Lovable](https://lovable.dev)
