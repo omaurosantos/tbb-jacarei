@@ -204,7 +204,7 @@ const Recursos = () => {
                               )}
                               {!sermao.linkYoutube && !sermao.linkSpotify && (
                                 <span className="text-sm text-muted-foreground italic">
-                                  Links em breve
+                                  Sem gravação disponível
                                 </span>
                               )}
                             </div>

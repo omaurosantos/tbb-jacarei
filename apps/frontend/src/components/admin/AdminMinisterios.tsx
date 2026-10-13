@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ministeriosService, uploadService, resolveAssetUrl } from "@/lib/api";
 import { Ministerio } from "shared";
 import { Button } from "@/components/ui/button";
@@ -52,11 +52,7 @@ const AdminMinisterios = () => {
 
   const [novoLider, setNovoLider] = useState("");
 
-  useEffect(() => {
-    fetchMinisterios();
-  }, []);
-
-  const fetchMinisterios = async () => {
+  const fetchMinisterios = useCallback(async () => {
     try {
       const data = await ministeriosService.getAll();
       setMinisterios(data);
@@ -67,7 +63,11 @@ const AdminMinisterios = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchMinisterios();
+  }, [fetchMinisterios]);
 
   const resetForm = () => {
     setForm({ nome: "", descricao: "", descricaoCompleta: "", icone: "Users", fotoUrl: "", lideres: [] });

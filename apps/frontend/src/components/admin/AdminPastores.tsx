@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { pastoresService, uploadService, resolveAssetUrl } from "@/lib/api";
 import { Pastor } from "shared";
 import { Button } from "@/components/ui/button";
@@ -44,11 +44,7 @@ const AdminPastores = () => {
     fotoUrl: "",
   });
 
-  useEffect(() => {
-    fetchPastores();
-  }, []);
-
-  const fetchPastores = async () => {
+  const fetchPastores = useCallback(async () => {
     try {
       const data = await pastoresService.getAll();
       setPastores(data);
@@ -59,7 +55,11 @@ const AdminPastores = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPastores();
+  }, [fetchPastores]);
 
   const resetForm = () => {
     setForm({ nome: "", funcao: "", bio: "", fotoUrl: "" });
