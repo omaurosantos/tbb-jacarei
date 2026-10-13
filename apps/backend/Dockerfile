@@ -1,8 +1,8 @@
 # Backend Dockerfile
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 
@@ -24,21 +24,21 @@ WORKDIR /app/apps/backend
 RUN pnpm build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 
 # Copy only necessary files
+# shared vai embutido no bundle (tsup), então não precisa estar na imagem final.
+# Com pnpm, as dependências do backend ficam linkadas em apps/backend/node_modules.
 COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/packages/shared ./packages/shared
 COPY --from=base /app/packages/prisma ./packages/prisma
+COPY --from=base /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY --from=base /app/apps/backend/dist ./apps/backend/dist
 COPY --from=base /app/apps/backend/package.json ./apps/backend/package.json
-COPY --from=base /app/packages/prisma/package.json ./packages/prisma/package.json
-COPY --from=base /app/packages/shared/package.json ./packages/shared/package.json
 COPY --from=base /app/pnpm-workspace.yaml ./
 COPY --from=base /app/package.json ./
 

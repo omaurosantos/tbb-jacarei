@@ -64,23 +64,15 @@ router.post('/', authenticate, authorize(AppRole.ADMIN, AppRole.EDITOR), async (
 
 router.put('/:id', authenticate, authorize(AppRole.ADMIN, AppRole.EDITOR), async (req: AuthRequest, res, next) => {
   try {
-    const data = updateMinisterioSchema.parse(req.body);
-    
-    // Se lideres foram enviados, atualizar
-    if (data.lideres) {
-      // Deletar lideres existentes
-      const ministerio = await ministeriosRepository.findById(req.params.id);
-      if (ministerio?.lideres) {
-        // Prisma vai deletar automaticamente devido ao onDelete: Cascade
-      }
-    }
+    const { lideres, ...rest } = updateMinisterioSchema.parse(req.body);
 
+    // Se lideres foram enviados, substitui a lista inteira
     const ministerio = await ministeriosRepository.update(req.params.id, {
-      ...data,
-      ...(data.lideres && {
+      ...rest,
+      ...(lideres && {
         lideres: {
           deleteMany: {},
-          create: data.lideres,
+          create: lideres,
         },
       }),
     });
