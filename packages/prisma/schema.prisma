@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppRole {
+  admin
+  editor
+}
+
+enum EbdClasse {
+  Homens
+  Belas
+  Adolescentes
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  profile Profile?
+  roles   UserRole[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  nome      String
+  email     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  role      AppRole  @default(editor)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("user_roles")
+}
+
+model Sermao {
+  id         String    @id @default(uuid())
+  titulo     String
+  pregador   String
+  data       DateTime  @db.Date
+  textoBase  String?   @map("texto_base")
+  resumo     String?
+  linkYoutube String?  @map("link_youtube")
+  linkSpotify String? @map("link_spotify")
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("sermoes")
+}
+
+model Evento {
+  id        String    @id @default(uuid())
+  nome      String
+  data      DateTime  @db.Date
+  horario   String?
+  local     String
+  descricao String?
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("eventos")
+}
+
+model AulaEbd {
+  id         String     @id @default(uuid())
+  titulo     String
+  professor  String
+  data       DateTime   @db.Date
+  classe     EbdClasse
+  textoBase  String?    @map("texto_base")
+  resumo     String?
+  linkPdf    String?    @map("link_pdf")
+  createdBy  String?    @map("created_by")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  @@map("aulas_ebd")
+}
+
+model ConteudoPagina {
+  id           String   @id @default(uuid())
+  pagina       String   @unique
+  titulo       String
+  subtitulo    String?
+  conteudo     String   @db.Text
+  conteudoExtra Json?   @map("conteudo_extra")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy    String?  @map("updated_by")
+
+  @@map("conteudos_paginas")
+}
+
+model Pastor {
+  id        String   @id @default(uuid())
+  nome      String
+  funcao    String
+  bio       String?  @db.Text
+  fotoUrl   String?  @map("foto_url")
+  ordem     Int      @default(0)
+  ativo     Boolean  @default(true)
+  createdBy String?  @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("pastores")
+}
+
+model Ministerio {
+  id              String   @id @default(uuid())
+  nome            String
+  descricao       String
+  descricaoCompleta String? @map("descricao_completa") @db.Text
+  icone           String   @default("Users")
+  fotoUrl         String?  @map("foto_url")
+  ordem           Int      @default(0)
+  ativo           Boolean  @default(true)
+  createdBy       String?  @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  lideres MinisterioLider[]
+
+  @@map("ministerios")
+}
+
+model MinisterioLider {
+  id          String   @id @default(uuid())
+  ministerioId String  @map("ministerio_id")
+  nome        String
+  ordem       Int      @default(0)
+
+  ministerio Ministerio @relation(fields: [ministerioId], references: [id], onDelete: Cascade)
+
+  @@map("ministerios_lideres")
+}
+
