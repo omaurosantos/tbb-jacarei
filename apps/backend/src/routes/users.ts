@@ -7,7 +7,7 @@ import { AppRole } from 'shared';
 const router = Router();
 
 const createUserSchema = z.object({
-  email: z.string().email('Email inválido'),
+  email: z.string().trim().toLowerCase().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   nome: z.string().min(1, 'Nome é obrigatório'),
   role: z.nativeEnum(AppRole),

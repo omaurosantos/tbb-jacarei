@@ -158,7 +158,7 @@ Para isso, cada ministério da igreja está em desenvolvimento para cultivar 4 �
 // Cria o primeiro admin a partir de ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NOME,
 // apenas se ainda não existir nenhum admin.
 async function seedAdmin() {
-  const email = process.env.ADMIN_EMAIL?.trim();
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
   const nome = process.env.ADMIN_NOME?.trim() || 'Administrador';
 
@@ -183,7 +183,9 @@ async function seedAdmin() {
   }
 
   // E-mail já usado por outro usuário (ex.: um editor): não promove nem derruba o deploy
-  const usuarioExistente = await prisma.user.findUnique({ where: { email } });
+  const usuarioExistente = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } },
+  });
   if (usuarioExistente) {
     console.warn(`Já existe um usuário com ${email}; nenhum admin criado. Use outro ADMIN_EMAIL.`);
     return;

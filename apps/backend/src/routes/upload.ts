@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { env } from '../config/env.js';
 import { AppRole } from 'shared';
@@ -8,6 +7,14 @@ import { AppError } from '../utils/AppError.js';
 import { promises as fs } from 'fs';
 
 const router = Router();
+
+// Tipos de imagem aceitos e a extensão usada ao salvar
+const EXTENSOES_PERMITIDAS: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
 
 // Configurar storage
 const storage = multer.diskStorage({
@@ -21,7 +28,12 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
+    // A extensão vem do tipo validado, nunca do nome enviado pelo cliente
+    // (evita, por exemplo, um "foto.html" servido como página pelo express.static)
+    const ext = Object.hasOwn(EXTENSOES_PERMITIDAS, file.mimetype) ? EXTENSOES_PERMITIDAS[file.mimetype] : undefined;
+    if (!ext) {
+      return cb(new AppError('Tipo de arquivo não permitido. Apenas imagens são aceitas.', 400, 'BadRequest'), '');
+    }
     cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
   },
 });
@@ -33,8 +45,7 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Aceitar apenas imagens
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (allowedMimes.includes(file.mimetype)) {
+    if (Object.hasOwn(EXTENSOES_PERMITIDAS, file.mimetype)) {
       cb(null, true);
     } else {
       cb(new AppError('Tipo de arquivo não permitido. Apenas imagens são aceitas.', 400, 'BadRequest'));
