@@ -9,6 +9,8 @@ Site institucional da igreja Templo Batista Bíblico de Jacareí, SP. Aplicaçã
 ![Node.js](https://img.shields.io/badge/Node.js-Express-green)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma-blue)
 
+> Vai continuar o projeto? Comece pelo [HANDOFF.md](HANDOFF.md): estado atual, decisões e pendências conhecidas.
+
 ## 🏗️ Arquitetura
 
 Este projeto utiliza uma arquitetura **monorepo monolítica** com separação lógica entre frontend e backend:
