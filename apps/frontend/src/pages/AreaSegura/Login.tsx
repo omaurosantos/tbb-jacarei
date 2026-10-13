@@ -17,15 +17,15 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
-  
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -55,9 +55,9 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
@@ -96,19 +96,13 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4">
             <Lock className="w-8 h-8" />
           </div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-            Área Segura
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Igreja Batista Bíblica de Taubaté
-          </p>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Área Segura</h1>
+          <p className="text-muted-foreground mt-2">Templo Batista Bíblico de Jacareí</p>
         </div>
 
         {/* Card */}
         <div className="bg-card border border-border rounded-xl shadow-lg p-6 md:p-8">
-          <h2 className="font-display text-xl font-semibold text-center mb-6">
-            Entrar
-          </h2>
+          <h2 className="font-display text-xl font-semibold text-center mb-6">Entrar</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -124,9 +118,7 @@ const Login = () => {
                   className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                 />
               </div>
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -149,9 +141,7 @@ const Login = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
@@ -169,9 +159,7 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Acesso restrito a usuários autorizados.
-          </p>
+          <p className="mt-6 text-center text-sm text-muted-foreground">Acesso restrito a usuários autorizados.</p>
         </div>
 
         {/* Back link */}
