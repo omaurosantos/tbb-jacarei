@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 import Home from "./pages/Home";
 
 // Demais páginas carregadas sob demanda; o painel (Login/Admin) fica fora do bundle do visitante
@@ -36,23 +37,25 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/igreja" element={<Igreja />} />
-              <Route path="/igreja/quem-somos" element={<QuemSomos />} />
-              <Route path="/igreja/missao" element={<Missao />} />
-              <Route path="/igreja/visao" element={<Visao />} />
-              <Route path="/igreja/o-que-cremos" element={<OQueCremos />} />
-              <Route path="/igreja/pastores" element={<Pastores />} />
-              <Route path="/ministerios" element={<Ministerios />} />
-              <Route path="/recursos" element={<Recursos />} />
-              <Route path="/localizacao" element={<Localizacao />} />
-              <Route path="/areasegura/login" element={<Login />} />
-              <Route path="/areasegura/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <ChunkErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/igreja" element={<Igreja />} />
+                <Route path="/igreja/quem-somos" element={<QuemSomos />} />
+                <Route path="/igreja/missao" element={<Missao />} />
+                <Route path="/igreja/visao" element={<Visao />} />
+                <Route path="/igreja/o-que-cremos" element={<OQueCremos />} />
+                <Route path="/igreja/pastores" element={<Pastores />} />
+                <Route path="/ministerios" element={<Ministerios />} />
+                <Route path="/recursos" element={<Recursos />} />
+                <Route path="/localizacao" element={<Localizacao />} />
+                <Route path="/areasegura/login" element={<Login />} />
+                <Route path="/areasegura/admin" element={<Admin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ChunkErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

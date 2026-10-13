@@ -263,8 +263,8 @@ MAX_FILE_SIZE=5242880
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/tbb_jacarei?schema=public"
 # Primeiro admin, criado pelo seed só se ainda não existir nenhum admin
-ADMIN_EMAIL=admin@exemplo.com
-ADMIN_PASSWORD=troque-esta-senha
+ADMIN_EMAIL=voce@exemplo.com
+ADMIN_PASSWORD=uma-senha-forte
 ADMIN_NOME=Administrador
 ```
 

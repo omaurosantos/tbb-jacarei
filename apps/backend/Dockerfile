@@ -2,7 +2,7 @@
 FROM node:22-alpine AS base
 
 # Install pnpm
-RUN npm install -g pnpm@9
+RUN npm install -g pnpm@9 && apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ RUN pnpm build
 FROM node:22-alpine AS production
 
 # Install pnpm
-RUN npm install -g pnpm@9
+RUN npm install -g pnpm@9 && apk add --no-cache openssl
 
 WORKDIR /app
 

@@ -177,6 +177,18 @@ async function seedAdmin() {
     throw new Error('ADMIN_PASSWORD deve ter pelo menos 8 caracteres.');
   }
 
+  // Senha de exemplo de versões antigas do .env.example nunca vira senha real
+  if (password === 'troque-esta-senha') {
+    throw new Error('ADMIN_PASSWORD ainda está com o valor de exemplo; defina uma senha própria.');
+  }
+
+  // E-mail já usado por outro usuário (ex.: um editor): não promove nem derruba o deploy
+  const usuarioExistente = await prisma.user.findUnique({ where: { email } });
+  if (usuarioExistente) {
+    console.warn(`Já existe um usuário com ${email}; nenhum admin criado. Use outro ADMIN_EMAIL.`);
+    return;
+  }
+
   const hash = await bcrypt.hash(password, 10);
 
   await prisma.$transaction(async (tx) => {

@@ -1,8 +1,12 @@
 import { z } from 'zod';
 
-// Foto pode ser um arquivo enviado pelo upload (/uploads/...) ou uma URL externa completa
+// Foto pode ser um arquivo enviado pelo upload (/uploads/<nome>) ou uma URL externa http(s)
 export const fotoUrlSchema = z
   .string()
-  .refine((value) => value.startsWith('/uploads/') || /^https?:\/\/\S+$/i.test(value), 'URL inválida')
+  .max(2048, 'URL muito longa')
+  .refine(
+    (value) => (/^\/uploads\/[\w.-]+$/.test(value) && !value.includes('..')) || /^https?:\/\/\S+$/i.test(value),
+    'URL inválida'
+  )
   .optional()
   .nullable();
