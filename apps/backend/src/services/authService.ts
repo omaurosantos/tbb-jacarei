@@ -23,9 +23,9 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResult> {
     const { email, password } = credentials;
 
-    // Buscar usuário
-    const user = await prisma.user.findUnique({
-      where: { email },
+    // Buscar usuário (sem diferenciar maiúsculas, para contas antigas gravadas com letras maiúsculas)
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
       include: {
         profile: true,
         roles: {

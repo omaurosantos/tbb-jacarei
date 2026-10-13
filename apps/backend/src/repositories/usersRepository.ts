@@ -27,9 +27,10 @@ export const usersRepository = {
     });
   },
 
+  // Sem diferenciar maiúsculas: impede cadastrar "Ana@x.com" se já existe "ana@x.com"
   findByEmail: async (email: string) => {
-    return prisma.user.findUnique({
-      where: { email },
+    return prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
       include: {
         profile: true,
         roles: true,
