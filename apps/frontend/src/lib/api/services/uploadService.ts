@@ -1,6 +1,5 @@
 import { API_ROUTES } from 'shared';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_BASE_URL } from '../config.js';
 
 export interface UploadResponse {
   url: string;
@@ -20,7 +19,7 @@ export const uploadService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_URL}${API_ROUTES.UPLOAD}`, {
+    const response = await fetch(`${API_BASE_URL}${API_ROUTES.UPLOAD}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

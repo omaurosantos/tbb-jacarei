@@ -1,8 +1,8 @@
 # Frontend Dockerfile
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY packages/shared ./packages/shared
 COPY apps/frontend ./apps/frontend
 
 # Build arguments
-ARG VITE_API_URL=http://localhost:3000/api
+ARG VITE_API_URL=http://localhost:3000
 ENV VITE_API_URL=$VITE_API_URL
 
 # Install dependencies

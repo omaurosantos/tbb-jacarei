@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { pastoresService, conteudosService } from "@/lib/api";
+import { pastoresService, conteudosService, resolveAssetUrl } from "@/lib/api";
 import { Pastor } from "shared";
 import Layout from "@/components/Layout";
 import { Camera } from "lucide-react";
@@ -71,7 +71,7 @@ const Pastores = () => {
                   <div className="h-48 bg-primary/5 flex items-center justify-center">
                     {pastor.fotoUrl ? (
                       <img 
-                        src={pastor.fotoUrl} 
+                        src={resolveAssetUrl(pastor.fotoUrl)} 
                         alt={pastor.nome} 
                         className="w-full h-full object-cover"
                       />

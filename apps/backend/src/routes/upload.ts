@@ -4,6 +4,7 @@ import path from 'path';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { env } from '../config/env.js';
 import { AppRole } from 'shared';
+import { AppError } from '../utils/AppError.js';
 import { promises as fs } from 'fs';
 
 const router = Router();
@@ -36,7 +37,7 @@ const upload = multer({
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Tipo de arquivo não permitido. Apenas imagens são aceitas.'));
+      cb(new AppError('Tipo de arquivo não permitido. Apenas imagens são aceitas.', 400, 'BadRequest'));
     }
   },
 });
@@ -49,7 +50,7 @@ router.post(
   upload.single('file'),
   (req, res, next) => {
     if (!req.file) {
-      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+      return res.status(400).json({ error: 'BadRequest', message: 'Nenhum arquivo enviado' });
     }
 
     // Retornar URL do arquivo

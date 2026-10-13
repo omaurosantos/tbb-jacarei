@@ -69,10 +69,10 @@ const Login = () => {
         title: "Login realizado com sucesso!",
       });
       navigate("/areasegura/admin");
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Erro",
-        description: error.message || "Email ou senha incorretos.",
+        description: (error instanceof Error && error.message) || "Email ou senha incorretos.",
         variant: "destructive",
       });
     } finally {

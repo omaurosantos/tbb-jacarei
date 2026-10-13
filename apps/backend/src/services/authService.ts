@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { prisma } from '../config/database.js';
 import { generateToken } from '../utils/jwt.js';
 import { AppRole } from 'shared';
+import { AppError } from '../utils/AppError.js';
 
 export interface LoginCredentials {
   email: string;
@@ -36,13 +37,13 @@ export const authService = {
     });
 
     if (!user) {
-      throw new Error('Credenciais inválidas');
+      throw new AppError('Credenciais inválidas', 401, 'Unauthorized');
     }
 
     // Verificar senha
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      throw new Error('Credenciais inválidas');
+      throw new AppError('Credenciais inválidas', 401, 'Unauthorized');
     }
 
     // Buscar role (admin tem prioridade)
@@ -79,7 +80,7 @@ export const authService = {
     });
 
     if (!user) {
-      throw new Error('Usuário não encontrado');
+      throw new AppError('Usuário não encontrado', 404, 'NotFound');
     }
 
     const role = (user.roles[0]?.role as AppRole) || AppRole.EDITOR;

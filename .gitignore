@@ -37,3 +37,6 @@ packages/*/dist
 *.njsproj
 *.sln
 *.sw?
+
+# Arquivos enviados pelo painel (upload)
+apps/backend/public/uploads/

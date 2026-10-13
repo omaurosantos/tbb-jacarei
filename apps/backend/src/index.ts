@@ -16,14 +16,14 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: env.frontendUrl,
+  origin: env.frontendUrls,
   credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploads)
-app.use('/uploads', express.static('public/uploads'));
+app.use('/uploads', express.static(env.uploadDir));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -48,6 +48,6 @@ app.use(errorHandler);
 app.listen(env.port, () => {
   console.log(`🚀 Servidor rodando na porta ${env.port}`);
   console.log(`📝 Ambiente: ${env.nodeEnv}`);
-  console.log(`🌐 Frontend URL: ${env.frontendUrl}`);
+  console.log(`🌐 Frontend URL: ${env.frontendUrls.join(', ')}`);
 });
 

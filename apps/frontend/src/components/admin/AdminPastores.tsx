@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { pastoresService, uploadService } from "@/lib/api";
+import { useState, useEffect, useCallback } from "react";
+import { pastoresService, uploadService, resolveAssetUrl } from "@/lib/api";
 import { Pastor } from "shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,11 +44,7 @@ const AdminPastores = () => {
     fotoUrl: "",
   });
 
-  useEffect(() => {
-    fetchPastores();
-  }, []);
-
-  const fetchPastores = async () => {
+  const fetchPastores = useCallback(async () => {
     try {
       const data = await pastoresService.getAll();
       setPastores(data);
@@ -59,7 +55,11 @@ const AdminPastores = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPastores();
+  }, [fetchPastores]);
 
   const resetForm = () => {
     setForm({ nome: "", funcao: "", bio: "", fotoUrl: "" });
@@ -84,8 +84,7 @@ const AdminPastores = () => {
     setUploading(true);
     try {
       const response = await uploadService.uploadFile(file);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      setForm({ ...form, fotoUrl: `${apiUrl}${response.url}` });
+      setForm({ ...form, fotoUrl: response.url });
       toast({ title: "Foto enviada!" });
     } catch (error) {
       toast({
@@ -164,7 +163,7 @@ const AdminPastores = () => {
             
             <div className="h-12 w-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
               {p.fotoUrl ? (
-                <img src={p.fotoUrl} alt={p.nome} className="h-full w-full object-cover" />
+                <img src={resolveAssetUrl(p.fotoUrl)} alt={p.nome} className="h-full w-full object-cover" />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-primary text-lg font-bold">
                   {p.nome.charAt(0)}
@@ -221,7 +220,7 @@ const AdminPastores = () => {
               <div className="relative">
                 <div className="h-24 w-24 rounded-full bg-primary/10 overflow-hidden">
                   {form.fotoUrl ? (
-                    <img src={form.fotoUrl} alt="Preview" className="h-full w-full object-cover" />
+                    <img src={resolveAssetUrl(form.fotoUrl)} alt="Preview" className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-primary">
                       <Upload className="h-8 w-8" />

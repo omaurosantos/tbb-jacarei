@@ -41,7 +41,7 @@ router.post('/', authenticate, authorize(AppRole.ADMIN), async (req: AuthRequest
     // Verificar se email já existe
     const existingUser = await usersRepository.findByEmail(data.email);
     if (existingUser) {
-      return res.status(400).json({ error: 'Email já cadastrado' });
+      return res.status(400).json({ error: 'BadRequest', message: 'Email já cadastrado' });
     }
 
     const user = await usersRepository.create(data);
@@ -63,7 +63,7 @@ router.patch('/:id/role', authenticate, authorize(AppRole.ADMIN), async (req: Au
     
     // Não permitir alterar próprio role
     if (id === req.userId) {
-      return res.status(400).json({ error: 'Não é possível alterar seu próprio role' });
+      return res.status(400).json({ error: 'BadRequest', message: 'Não é possível alterar seu próprio role' });
     }
 
     const data = updateRoleSchema.parse(req.body);
@@ -81,7 +81,7 @@ router.delete('/:id', authenticate, authorize(AppRole.ADMIN), async (req: AuthRe
     
     // Não permitir deletar a si mesmo
     if (id === req.userId) {
-      return res.status(400).json({ error: 'Não é possível deletar seu próprio usuário' });
+      return res.status(400).json({ error: 'BadRequest', message: 'Não é possível deletar seu próprio usuário' });
     }
 
     await usersRepository.delete(id);

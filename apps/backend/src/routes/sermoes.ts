@@ -34,7 +34,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const sermao = await sermoesRepository.findById(req.params.id);
     if (!sermao) {
-      return res.status(404).json({ error: 'Sermão não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Sermão não encontrado' });
     }
     res.json(sermao);
   } catch (error) {

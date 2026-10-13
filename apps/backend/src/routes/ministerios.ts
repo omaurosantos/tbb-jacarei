@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.js';
 import { ministeriosRepository } from '../repositories/ministeriosRepository.js';
 import { AppRole } from 'shared';
+import { fotoUrlSchema } from '../utils/validation.js';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const createMinisterioSchema = z.object({
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   descricaoCompleta: z.string().optional().nullable(),
   icone: z.string().default('Users'),
-  fotoUrl: z.string().url('URL inválida').optional().nullable(),
+  fotoUrl: fotoUrlSchema,
   ordem: z.number().int().default(0),
   ativo: z.boolean().default(true),
   lideres: z.array(liderSchema).optional(),
@@ -38,7 +39,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const ministerio = await ministeriosRepository.findById(req.params.id);
     if (!ministerio) {
-      return res.status(404).json({ error: 'Ministério não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Ministério não encontrado' });
     }
     res.json(ministerio);
   } catch (error) {
@@ -64,23 +65,15 @@ router.post('/', authenticate, authorize(AppRole.ADMIN, AppRole.EDITOR), async (
 
 router.put('/:id', authenticate, authorize(AppRole.ADMIN, AppRole.EDITOR), async (req: AuthRequest, res, next) => {
   try {
-    const data = updateMinisterioSchema.parse(req.body);
-    
-    // Se lideres foram enviados, atualizar
-    if (data.lideres) {
-      // Deletar lideres existentes
-      const ministerio = await ministeriosRepository.findById(req.params.id);
-      if (ministerio?.lideres) {
-        // Prisma vai deletar automaticamente devido ao onDelete: Cascade
-      }
-    }
+    const { lideres, ...rest } = updateMinisterioSchema.parse(req.body);
 
+    // Se lideres foram enviados, substitui a lista inteira
     const ministerio = await ministeriosRepository.update(req.params.id, {
-      ...data,
-      ...(data.lideres && {
+      ...rest,
+      ...(lideres && {
         lideres: {
           deleteMany: {},
-          create: data.lideres,
+          create: lideres,
         },
       }),
     });

@@ -26,7 +26,7 @@ router.get('/:pagina', async (req, res, next) => {
   try {
     const conteudo = await conteudosRepository.findByPagina(req.params.pagina);
     if (!conteudo) {
-      return res.status(404).json({ error: 'Conteúdo não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Conteúdo não encontrado' });
     }
     res.json(conteudo);
   } catch (error) {

@@ -32,7 +32,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const aula = await aulasEbdRepository.findById(req.params.id);
     if (!aula) {
-      return res.status(404).json({ error: 'Aula não encontrada' });
+      return res.status(404).json({ error: 'NotFound', message: 'Aula não encontrada' });
     }
     res.json(aula);
   } catch (error) {

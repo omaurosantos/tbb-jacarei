@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { sermoesService, aulasEbdService, eventosService, usersService } from "@/lib/api";
@@ -145,12 +145,6 @@ const Admin = () => {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
   // Pagination hooks
   const sermoesPagination = usePagination({
     data: sermoes,
@@ -198,7 +192,7 @@ const Admin = () => {
     return years.sort((a, b) => b - a);
   }, [eventos]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [sermoesData, aulasData, eventosData] = await Promise.all([
@@ -225,7 +219,13 @@ const Admin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAdmin, toast]);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user, fetchData]);
 
   const handleLogout = async () => {
     await logout();

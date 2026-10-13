@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 interface UsePaginationOptions<T> {
   data: T[];
@@ -51,7 +51,7 @@ export function usePagination<T>({
   }, [data, searchQuery, searchFields, dateField, filterMonth, filterYear]);
 
   // Reset to page 1 when filters change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterMonth, filterYear]);
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { conteudosService } from "@/lib/api";
 import { ConteudoPagina } from "shared";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,7 @@ const AdminConteudos = () => {
     conteudo: "",
   });
 
-  useEffect(() => {
-    fetchConteudos();
-  }, []);
-
-  const fetchConteudos = async () => {
+  const fetchConteudos = useCallback(async () => {
     try {
       const data = await conteudosService.getAll();
       setConteudos(data);
@@ -48,7 +44,11 @@ const AdminConteudos = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchConteudos();
+  }, [fetchConteudos]);
 
   const openEdit = (conteudo: ConteudoPagina) => {
     setEditing(conteudo);

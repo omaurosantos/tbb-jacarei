@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { authService } from '../services/authService.js';
 
 const router = Router();
@@ -20,7 +20,7 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-router.get('/me', authenticate, async (req, res, next) => {
+router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.userId!;
     const user = await authService.getCurrentUser(userId);

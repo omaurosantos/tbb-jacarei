@@ -60,3 +60,7 @@ supabase
 apps/backend/public/uploads/*
 !apps/backend/public/uploads/.gitkeep
 
+
+# Estado local de ferramentas de IA (oh-my-claudecode)
+.omc
+**/.omc

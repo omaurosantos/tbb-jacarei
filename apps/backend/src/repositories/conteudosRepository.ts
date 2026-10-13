@@ -12,7 +12,7 @@ export const conteudosRepository = {
     return prisma.conteudoPagina.findMany();
   },
 
-  upsert: async (pagina: string, data: Prisma.ConteudoPaginaCreateInput) => {
+  upsert: async (pagina: string, data: Omit<Prisma.ConteudoPaginaCreateInput, 'pagina'>) => {
     return prisma.conteudoPagina.upsert({
       where: { pagina },
       update: data,
