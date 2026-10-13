@@ -100,11 +100,15 @@ tbb-jacarei/
 
 ## 🚀 Como Executar
 
+> O projeto não é mais editado pelo Lovable. Toda a evolução acontece neste repositório (monorepo pnpm com Express + Prisma, sem Supabase). A integração GitHub do projeto no Lovable deve ficar desconectada.
+
+Para rodar tudo com Docker (banco, migrações, seed, backend e frontend), veja o [DOCKER.md](DOCKER.md). Abaixo, o fluxo sem Docker.
+
 ### Pré-requisitos
 
-- Node.js 18+
-- pnpm (recomendado) ou npm
-- PostgreSQL (local ou Neon)
+- Node.js 22+
+- pnpm 9 (instalado, ou via `npx pnpm@9 <comando>`)
+- PostgreSQL 16 acessível em `localhost:5432` (instalado, em Docker com `docker compose up postgres`, ou o pacote npm `embedded-postgres` rodando fora do repositório)
 
 ### Instalação
 
@@ -112,45 +116,48 @@ tbb-jacarei/
 # Instalar dependências de todos os workspaces
 pnpm install
 
-# Gerar cliente Prisma
+# Configurar variáveis de ambiente (os .env não são versionados)
+cp apps/backend/.env.example apps/backend/.env
+cp packages/prisma/.env.example packages/prisma/.env
+cp apps/frontend/.env.example apps/frontend/.env
+# Edite os três: DATABASE_URL, JWT_SECRET e ADMIN_* (senha com 8+ caracteres)
+
+# Gerar o cliente Prisma
 pnpm db:generate
 
-# Configurar banco de dados
-# Copie .env.example para .env e configure DATABASE_URL
-cp packages/prisma/.env.example packages/prisma/.env
-cp apps/backend/.env.example apps/backend/.env
+# Aplicar as migrações no banco
+pnpm db:deploy
 
-# Executar migrations
-pnpm db:migrate
-
-# Popular dados iniciais (opcional)
-pnpm --filter prisma seed
+# Popular conteúdos iniciais e criar o primeiro admin (idempotente)
+pnpm db:seed
 ```
+
+O seed só cria o que falta: não sobrescreve conteúdos editados pelo painel e só cria o admin se ainda não existir nenhum. Depois, entre em `http://localhost:8080/areasegura/login` com `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
 
 ### Desenvolvimento
 
 ```bash
-# Frontend (porta 8080)
-pnpm dev
-
-# Backend (porta 3001)
+# Backend (porta 3000)
 pnpm dev:backend
 
-# Ambos simultaneamente (em terminais separados)
-pnpm dev & pnpm dev:backend
+# Frontend (porta 8080), em outro terminal
+pnpm dev
 ```
 
 ### Scripts Disponíveis
 
 | Script | Descrição |
 |-------|-----------|
-| `pnpm dev` | Inicia frontend em desenvolvimento |
-| `pnpm dev:backend` | Inicia backend em desenvolvimento |
+| `pnpm dev` | Inicia o frontend em desenvolvimento |
+| `pnpm dev:backend` | Inicia o backend em desenvolvimento |
 | `pnpm build` | Build do frontend |
-| `pnpm build:backend` | Build do backend |
-| `pnpm db:generate` | Gera cliente Prisma |
-| `pnpm db:migrate` | Executa migrations |
-| `pnpm db:studio` | Abre Prisma Studio |
+| `pnpm build:backend` | Build do backend (tsup, com `shared` embutido) |
+| `pnpm lint` | Lint do frontend |
+| `pnpm db:generate` | Gera o cliente Prisma |
+| `pnpm db:migrate` | Cria/aplica migrações em desenvolvimento (`prisma migrate dev`) |
+| `pnpm db:deploy` | Aplica as migrações existentes (`prisma migrate deploy`) |
+| `pnpm db:seed` | Popula conteúdos iniciais e cria o primeiro admin |
+| `pnpm db:studio` | Abre o Prisma Studio |
 
 ## 🔐 Autenticação
 
@@ -235,16 +242,18 @@ O sistema utiliza autenticação JWT manual:
 
 ### Frontend (`apps/frontend/.env`)
 ```env
-VITE_API_URL=http://localhost:3001
+# Origem do backend, SEM /api (as rotas já começam com /api)
+VITE_API_URL=http://localhost:3000
 ```
 
 ### Backend (`apps/backend/.env`)
 ```env
-PORT=3001
+PORT=3000
 NODE_ENV=development
-DATABASE_URL=postgresql://user:password@localhost:5432/tbb_jacarei
+DATABASE_URL="postgresql://user:password@localhost:5432/tbb_jacarei?schema=public"
 JWT_SECRET=your-secret-key-change-in-production
 JWT_EXPIRES_IN=7d
+# Origens liberadas no CORS (separe várias por vírgula)
 FRONTEND_URL=http://localhost:8080
 UPLOAD_DIR=./public/uploads
 MAX_FILE_SIZE=5242880
@@ -252,8 +261,14 @@ MAX_FILE_SIZE=5242880
 
 ### Prisma (`packages/prisma/.env`)
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/tbb_jacarei
+DATABASE_URL="postgresql://user:password@localhost:5432/tbb_jacarei?schema=public"
+# Primeiro admin, criado pelo seed só se ainda não existir nenhum admin
+ADMIN_EMAIL=admin@exemplo.com
+ADMIN_PASSWORD=troque-esta-senha
+ADMIN_NOME=Administrador
 ```
+
+As fotos enviadas pelo painel ficam em `apps/backend/public/uploads/` (fora do git) e são salvas no banco como caminho relativo (`/uploads/arquivo.jpg`); o frontend monta a URL completa a partir de `VITE_API_URL`.
 
 ## 📦 Deploy
 
