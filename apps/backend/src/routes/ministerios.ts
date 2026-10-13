@@ -39,7 +39,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const ministerio = await ministeriosRepository.findById(req.params.id);
     if (!ministerio) {
-      return res.status(404).json({ error: 'Ministério não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Ministério não encontrado' });
     }
     res.json(ministerio);
   } catch (error) {

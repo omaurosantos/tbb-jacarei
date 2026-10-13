@@ -32,7 +32,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const pastor = await pastoresRepository.findById(req.params.id);
     if (!pastor) {
-      return res.status(404).json({ error: 'Pastor não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Pastor não encontrado' });
     }
     res.json(pastor);
   } catch (error) {

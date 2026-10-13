@@ -30,7 +30,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const evento = await eventosRepository.findById(req.params.id);
     if (!evento) {
-      return res.status(404).json({ error: 'Evento não encontrado' });
+      return res.status(404).json({ error: 'NotFound', message: 'Evento não encontrado' });
     }
     res.json(evento);
   } catch (error) {

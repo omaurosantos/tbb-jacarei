@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
+import multer from 'multer';
 
 export interface ApiError extends Error {
   statusCode?: number;
@@ -24,9 +26,26 @@ export const errorHandler = (
     });
   }
 
+  // Registro inexistente em update/delete
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+    return res.status(404).json({
+      error: 'NotFound',
+      message: 'Registro não encontrado',
+    });
+  }
+
+  // Erros do upload (tamanho, campos)
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      error: 'BadRequest',
+      message: err.code === 'LIMIT_FILE_SIZE' ? 'Arquivo maior que o permitido' : err.message,
+    });
+  }
+
   // API errors with status code
-  if ('statusCode' in err && err.statusCode) {
-    return res.status(err.statusCode).json({
+  const statusCode = (err as ApiError).statusCode;
+  if (typeof statusCode === 'number') {
+    return res.status(statusCode).json({
       error: err.name || 'Error',
       message: err.message,
     });
