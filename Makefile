@@ -1,4 +1,4 @@
-.PHONY: up down build logs clean
+.PHONY: up up-d down down-v build logs clean migrate seed studio
 
 # Inicia todos os serviços
 up:
@@ -29,7 +29,7 @@ clean:
 	docker compose down -v
 	docker system prune -f
 
-# Executar migrações
+# Executar migrações (e o seed)
 migrate:
 	docker compose run --rm prisma-migrate
 
@@ -37,3 +37,6 @@ migrate:
 studio:
 	docker compose exec backend sh -c "cd /app/packages/prisma && pnpm studio"
 
+# Popular dados iniciais (seed é idempotente; roda junto com as migrações)
+seed:
+	docker compose run --rm prisma-migrate

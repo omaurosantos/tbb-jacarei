@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -20,7 +22,6 @@ Somos uma igreja que coloca o ensino e a pregação da Palavra de Deus acima de 
 Somos uma igreja envolvida com a educação. Acreditamos que pelo ensino correto das Escrituras obteremos mudanças consistentes e por esta razão, enfatizamos a educação teológica como grande parte de nosso empenho.
 
 Somos uma igreja que valoriza a adoração e o culto comunitário. Acreditamos que todo salvo deve se reunir em comunidade para adorar ao Senhor.`,
-      conteudoExtra: null,
     },
     {
       pagina: 'missao',
@@ -140,15 +141,51 @@ Para isso, cada ministério da igreja está em desenvolvimento para cultivar 4 �
     },
   ];
 
+  // Só cria o que falta: o seed roda a cada deploy e não pode sobrescrever edições feitas pelo painel
   for (const conteudo of conteudos) {
     await prisma.conteudoPagina.upsert({
       where: { pagina: conteudo.pagina },
-      update: conteudo,
+      update: {},
       create: conteudo,
     });
   }
 
+  await seedAdmin();
+
   console.log('Seed concluído com sucesso!');
+}
+
+// Cria o primeiro admin a partir de ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NOME,
+// apenas se ainda não existir nenhum admin.
+async function seedAdmin() {
+  const email = process.env.ADMIN_EMAIL?.trim();
+  const password = process.env.ADMIN_PASSWORD;
+  const nome = process.env.ADMIN_NOME?.trim() || 'Administrador';
+
+  const adminExistente = await prisma.userRole.findFirst({ where: { role: 'admin' } });
+  if (adminExistente) {
+    console.log('Admin já existe; nenhum admin criado.');
+    return;
+  }
+
+  if (!email || !password) {
+    console.warn('ADMIN_EMAIL/ADMIN_PASSWORD não definidos; nenhum admin criado.');
+    return;
+  }
+
+  if (password.length < 8) {
+    throw new Error('ADMIN_PASSWORD deve ter pelo menos 8 caracteres.');
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({ data: { email, password: hash } });
+    await tx.profile.create({ data: { userId: user.id, nome, email } });
+    await tx.userRole.create({ data: { userId: user.id, role: 'admin' } });
+  });
+
+  console.log(`Admin criado: ${email}`);
 }
 
 main()

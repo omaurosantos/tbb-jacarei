@@ -11,6 +11,8 @@
     "lint": "pnpm --filter frontend lint",
     "db:generate": "pnpm --filter prisma generate",
     "db:migrate": "pnpm --filter prisma migrate",
+    "db:deploy": "pnpm --filter prisma migrate:deploy",
+    "db:seed": "pnpm --filter prisma seed",
     "db:studio": "pnpm --filter prisma studio"
   },
   "devDependencies": {
