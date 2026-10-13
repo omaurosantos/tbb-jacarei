@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ministeriosService, uploadService } from "@/lib/api";
+import { ministeriosService, uploadService, resolveAssetUrl } from "@/lib/api";
 import { Ministerio } from "shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,8 +95,7 @@ const AdminMinisterios = () => {
     setUploading(true);
     try {
       const response = await uploadService.uploadFile(file);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      setForm({ ...form, fotoUrl: `${apiUrl}${response.url}` });
+      setForm({ ...form, fotoUrl: response.url });
       toast({ title: "Foto enviada!" });
     } catch (error) {
       toast({
@@ -186,7 +185,7 @@ const AdminMinisterios = () => {
           <div key={m.id} className="bg-card border border-border rounded-lg p-4 flex items-center gap-4">
             <div className="h-12 w-12 rounded-lg bg-primary/10 overflow-hidden shrink-0">
               {m.fotoUrl ? (
-                <img src={m.fotoUrl} alt={m.nome} className="h-full w-full object-cover" />
+                <img src={resolveAssetUrl(m.fotoUrl)} alt={m.nome} className="h-full w-full object-cover" />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-primary font-bold">
                   {m.nome.charAt(0)}
@@ -248,7 +247,7 @@ const AdminMinisterios = () => {
               <div className="relative">
                 <div className="h-24 w-24 rounded-lg bg-primary/10 overflow-hidden">
                   {form.fotoUrl ? (
-                    <img src={form.fotoUrl} alt="Preview" className="h-full w-full object-cover" />
+                    <img src={resolveAssetUrl(form.fotoUrl)} alt="Preview" className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-primary">
                       <Upload className="h-8 w-8" />

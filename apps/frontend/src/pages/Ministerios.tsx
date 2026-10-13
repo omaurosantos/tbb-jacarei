@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ministeriosService } from "@/lib/api";
+import { ministeriosService, resolveAssetUrl } from "@/lib/api";
 import { Ministerio } from "shared";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -74,7 +74,7 @@ const Ministerios = () => {
                   <div className="h-40 bg-primary/5 flex items-center justify-center">
                     {ministerio.fotoUrl ? (
                       <img 
-                        src={ministerio.fotoUrl} 
+                        src={resolveAssetUrl(ministerio.fotoUrl)} 
                         alt={ministerio.nome} 
                         className="w-full h-full object-cover"
                       />

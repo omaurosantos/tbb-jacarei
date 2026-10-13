@@ -12,7 +12,7 @@ COPY packages/shared ./packages/shared
 COPY apps/frontend ./apps/frontend
 
 # Build arguments
-ARG VITE_API_URL=http://localhost:3000/api
+ARG VITE_API_URL=http://localhost:3000
 ENV VITE_API_URL=$VITE_API_URL
 
 # Install dependencies

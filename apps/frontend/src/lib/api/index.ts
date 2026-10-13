@@ -1,4 +1,5 @@
 export * from './client.js';
+export * from './config.js';
 export * from './services/authService.js';
 export * from './services/sermoesService.js';
 export * from './services/aulasEbdService.js';

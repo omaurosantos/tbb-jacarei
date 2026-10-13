@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
@@ -8,8 +9,12 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL || '',
   jwtSecret: process.env.JWT_SECRET || '',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:8080',
-  uploadDir: process.env.UPLOAD_DIR || './public/uploads',
+  // Origens liberadas no CORS; aceita várias separadas por vírgula
+  frontendUrls: (process.env.FRONTEND_URL || 'http://localhost:8080')
+    .split(',')
+    .map((url) => url.trim().replace(/\/+$/, ''))
+    .filter(Boolean),
+  uploadDir: path.resolve(process.env.UPLOAD_DIR || './public/uploads'),
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880', 10), // 5MB default
 } as const;
 

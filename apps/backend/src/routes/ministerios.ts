@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.js';
 import { ministeriosRepository } from '../repositories/ministeriosRepository.js';
 import { AppRole } from 'shared';
+import { fotoUrlSchema } from '../utils/validation.js';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const createMinisterioSchema = z.object({
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   descricaoCompleta: z.string().optional().nullable(),
   icone: z.string().default('Users'),
-  fotoUrl: z.string().url('URL inválida').optional().nullable(),
+  fotoUrl: fotoUrlSchema,
   ordem: z.number().int().default(0),
   ativo: z.boolean().default(true),
   lideres: z.array(liderSchema).optional(),

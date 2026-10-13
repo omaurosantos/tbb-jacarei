@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.js';
 import { pastoresRepository } from '../repositories/pastoresRepository.js';
 import { AppRole } from 'shared';
+import { fotoUrlSchema } from '../utils/validation.js';
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const createPastorSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   funcao: z.string().min(1, 'Função é obrigatória'),
   bio: z.string().optional().nullable(),
-  fotoUrl: z.string().url('URL inválida').optional().nullable(),
+  fotoUrl: fotoUrlSchema,
   ordem: z.number().int().default(0),
   ativo: z.boolean().default(true),
 });
