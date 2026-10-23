@@ -33,12 +33,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon, 
-  BookOpen, GraduationCap, Calendar, FileText, Church, Menu, LayoutDashboard, ExternalLink
+  BookOpen, GraduationCap, Calendar, FileText, Church, Menu, LayoutDashboard, ExternalLink, Palette
 } from "lucide-react";
 import { Sermao, AulaEbd, Evento, User, AppRole, EbdClasse } from "shared";
 import AdminPastores from "@/components/admin/AdminPastores";
 import AdminMinisterios from "@/components/admin/AdminMinisterios";
 import AdminConteudos from "@/components/admin/AdminConteudos";
+import AdminTema from "@/components/admin/AdminTema";
 import { cn } from "@/lib/utils";
 import { usePagination } from "@/hooks/use-pagination";
 import { SearchFilter } from "@/components/SearchFilter";
@@ -48,7 +49,7 @@ type SermaoForm = Omit<Sermao, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 type AulaEbdForm = Omit<AulaEbd, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 type EventoForm = Omit<Evento, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 
-type Section = "resumo" | "sermoes" | "aulas" | "eventos" | "pastores" | "ministerios" | "conteudos" | "usuarios";
+type Section = "resumo" | "aparencia" | "sermoes" | "aulas" | "eventos" | "pastores" | "ministerios" | "conteudos" | "usuarios";
 
 const menuItems: { id: Section; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
   { id: "resumo", label: "Resumo", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -58,6 +59,7 @@ const menuItems: { id: Section; label: string; icon: React.ReactNode; adminOnly?
   { id: "pastores", label: "Pastores", icon: <UserIcon className="h-5 w-5" /> },
   { id: "ministerios", label: "Ministérios", icon: <Church className="h-5 w-5" /> },
   { id: "conteudos", label: "Conteúdos", icon: <FileText className="h-5 w-5" /> },
+  { id: "aparencia", label: "Cores do site", icon: <Palette className="h-5 w-5" />, adminOnly: true },
   { id: "usuarios", label: "Usuários", icon: <Users className="h-5 w-5" />, adminOnly: true },
 ];
 
@@ -896,6 +898,9 @@ const Admin = () => {
 
           {/* Conteúdos */}
           {activeSection === "conteudos" && <AdminConteudos />}
+
+          {/* Cores do site */}
+          {activeSection === "aparencia" && isAdmin && <AdminTema />}
 
           {/* Usuários */}
           {activeSection === "usuarios" && isAdmin && (

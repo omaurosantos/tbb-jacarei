@@ -128,7 +128,7 @@ const AdminConteudos = () => {
       </div>
 
       <div className="space-y-3">
-        {conteudos.map((c) => (
+        {conteudos.filter((c) => c.pagina !== "tema").map((c) => (
           <div key={c.id} className="bg-card border border-border rounded-lg p-4 flex items-center gap-4">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <FileText className="h-5 w-5 text-primary" />
