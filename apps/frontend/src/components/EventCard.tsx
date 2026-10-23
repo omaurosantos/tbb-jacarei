@@ -28,7 +28,7 @@ const EventCard = ({ evento }: EventCardProps) => {
         </div>
         <div className="flex-1">
           <h4 className="font-display font-semibold text-foreground">{evento.nome}</h4>
-          <p className="text-sm text-muted-foreground mt-1">{evento.descricao}</p>
+          <p className="text-base text-muted-foreground mt-1">{evento.descricao}</p>
           <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />

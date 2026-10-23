@@ -59,7 +59,7 @@ const Igreja = () => {
                 <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
                   {section.titulo}
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-base text-muted-foreground">
                   {section.descricao}
                 </p>
               </Link>

@@ -19,16 +19,16 @@ const Header = () => {
     <header className="bg-primary text-primary-foreground sticky top-0 z-50">
       <div className="container">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex shrink-0 items-center gap-3">
             <img src={logoTBB} alt="Templo Batista Bíblico" className="h-10 w-10 md:h-12 md:w-12 rounded-full" />
             <div className="hidden sm:block">
-              <span className="font-display text-lg md:text-xl font-semibold">Templo Batista Bíblico</span>
+              <span className="font-display text-lg md:text-base lg:text-xl font-semibold">Templo Batista Bíblico</span>
               <p className="text-xs text-primary-foreground/70">Jacareí, SP</p>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-8">
             <Link to="/" className="text-sm font-medium hover:text-primary-foreground/80 transition-colors">
               Início
             </Link>

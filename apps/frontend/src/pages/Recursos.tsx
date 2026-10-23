@@ -22,9 +22,9 @@ const formatDate = (dateString: string) => {
 };
 
 const classeColors: Record<string, string> = {
-  "Homens": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-  "Belas": "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
-  "Adolescentes": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+  "Homens": "bg-primary/10 text-primary",
+  "Belas": "bg-highlight/25 text-highlight-foreground",
+  "Adolescentes": "bg-secondary text-secondary-foreground",
 };
 
 const Recursos = () => {
@@ -175,7 +175,7 @@ const Recursos = () => {
                                 {sermao.pregador} {sermao.textoBase && `• ${sermao.textoBase}`}
                               </p>
                               {sermao.resumo && (
-                                <p className="text-sm text-muted-foreground mt-2">{sermao.resumo}</p>
+                                <p className="text-base text-muted-foreground mt-2">{sermao.resumo}</p>
                               )}
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -246,8 +246,8 @@ const Recursos = () => {
                       onClick={() => setAulaClasse(EbdClasse.HOMENS)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                         aulaClasse === EbdClasse.HOMENS 
-                          ? "bg-blue-600 text-white" 
-                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-primary/10 text-primary hover:bg-primary/20"
                       }`}
                     >
                       Homens
@@ -256,8 +256,8 @@ const Recursos = () => {
                       onClick={() => setAulaClasse(EbdClasse.BELAS)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                         aulaClasse === EbdClasse.BELAS 
-                          ? "bg-pink-600 text-white" 
-                          : "bg-pink-100 text-pink-800 hover:bg-pink-200"
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-highlight/25 text-highlight-foreground hover:bg-highlight/40"
                       }`}
                     >
                       Belas
@@ -266,8 +266,8 @@ const Recursos = () => {
                       onClick={() => setAulaClasse(EbdClasse.ADOLESCENTES)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                         aulaClasse === EbdClasse.ADOLESCENTES 
-                          ? "bg-purple-600 text-white" 
-                          : "bg-purple-100 text-purple-800 hover:bg-purple-200"
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
                       }`}
                     >
                       Adolescentes
@@ -315,9 +315,9 @@ const Recursos = () => {
                               <h3 className="font-display text-lg font-semibold text-foreground mt-1">
                                 {aula.titulo}
                               </h3>
-                              <p className="text-sm text-muted-foreground mt-1">Prof. {aula.professor}</p>
+                              <p className="text-base text-muted-foreground mt-1">Prof. {aula.professor}</p>
                               {aula.resumo && (
-                                <p className="text-muted-foreground mt-2 text-sm">{aula.resumo}</p>
+                                <p className="text-muted-foreground mt-2 text-base">{aula.resumo}</p>
                               )}
                             </div>
                             {aula.linkPdf && (
