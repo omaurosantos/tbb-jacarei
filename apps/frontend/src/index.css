@@ -26,8 +26,8 @@
     --accent: 160 28% 17%;
     --accent-foreground: 140 20% 97%;
 
-    --highlight: 38 68% 54%;
-    --highlight-foreground: 160 28% 12%;
+    --highlight: 38 68% 51%;
+    --highlight-foreground: 160 22% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -85,6 +85,11 @@
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    /* 17px de base: leitura confortável para todas as idades */
+    font-size: 106.25%;
   }
 
   body {

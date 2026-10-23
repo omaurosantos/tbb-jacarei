@@ -103,7 +103,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-sm text-primary-foreground/75">
+        <div className="mt-10 pt-2 text-center text-sm text-primary-foreground/75">
           <p>© {new Date().getFullYear()} Templo Batista Bíblico - Jacareí, SP. Todos os direitos reservados.</p>
         </div>
       </div>

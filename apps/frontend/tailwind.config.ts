@@ -15,7 +15,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Figtree", "system-ui", "sans-serif"],
+        sans: ["'Atkinson Hyperlegible Next'", "system-ui", "sans-serif"],
         display: ["Literata", "Georgia", "serif"],
       },
       colors: {
