@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
 import logoTBB from "@/assets/logo-tbb.jpg";
-
-const instagramLinks = [{ handle: "@tbbjacarei", url: "https://instagram.com/tbbjacarei", label: "Igreja" }];
+import { useContato } from "@/hooks/use-contato";
 
 const Footer = () => {
+  const contato = useContato();
+  const instagramLinks = [{ handle: `@${contato.instagram}`, url: `https://instagram.com/${contato.instagram}` }];
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container py-12 md:py-16">
@@ -86,12 +88,15 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-4">Contato</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li>R. Carlos de Campos, 447</li>
-              <li>Parque Itamarati, Jacareí - SP</li>
-              <li>CEP: 12307-430</li>
+              {contato.endereco
+                .split("\n")
+                .filter((linha) => linha.trim())
+                .map((linha, i) => (
+                  <li key={i}>{linha}</li>
+                ))}
               <li className="pt-2">
-                <a href="mailto:contato@tbbjacarei.com.br" className="hover:text-primary-foreground transition-colors">
-                  contato@tbbjacarei.com.br
+                <a href={`mailto:${contato.email}`} className="hover:text-primary-foreground transition-colors">
+                  {contato.email}
                 </a>
               </li>
             </ul>
