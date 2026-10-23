@@ -117,7 +117,7 @@ const Localizacao = () => {
               desenvolver relacionamentos genuínos.
             </p>
             <div className="mt-6 p-4 bg-card rounded-lg border border-border inline-block">
-              <p className="text-sm text-muted-foreground">Quer saber mais ou encontrar um grupo perto de você?</p>
+              <p className="text-base text-muted-foreground">Quer saber mais ou encontrar um grupo perto de você?</p>
               <p className="text-lg font-semibold text-primary mt-1">Entre em contato: {contato.telefone}</p>
             </div>
           </div>

@@ -120,12 +120,12 @@ const Home = () => {
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-sm text-primary-foreground/80">{h.descricao}</p>
+                    <p className="mt-0.5 text-base text-primary-foreground/85">{h.descricao}</p>
                   </li>
                 );
               })}
             </ul>
-            <p className="mt-5 flex items-start gap-2 border-t border-primary-foreground/15 pt-5 text-sm text-primary-foreground/80">
+            <p className="mt-5 flex items-start gap-2 border-t border-primary-foreground/15 pt-5 text-base text-primary-foreground/85">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <span>{linhasEndereco.slice(0, 2).join(", ")}</span>
             </p>
@@ -218,7 +218,7 @@ const Home = () => {
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-semibold">{ctaTitle}</h2>
             <p className="mt-3 text-primary-foreground/80 max-w-xl">{horarios}</p>
-            <p className="mt-1 text-primary-foreground/70 text-sm">{linhasEndereco.slice(0, 2).join(", ")}</p>
+            <p className="mt-1 text-primary-foreground/80 text-base">{linhasEndereco.slice(0, 2).join(", ")}</p>
           </div>
           <Button asChild size="lg" className="bg-highlight text-highlight-foreground hover:bg-highlight/90 font-semibold">
             <Link to="/localizacao">Como chegar</Link>

@@ -91,7 +91,7 @@ const Ministerios = () => {
                     <h3 className="font-display text-xl font-semibold text-foreground">
                       {ministerio.nome}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-base text-muted-foreground">
                       {ministerio.descricao}
                     </p>
                     
@@ -99,7 +99,7 @@ const Ministerios = () => {
                     {ministerio.lideres && ministerio.lideres.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-xs text-muted-foreground mb-1">Liderança:</p>
-                        <p className="text-sm text-foreground">
+                        <p className="text-base text-foreground">
                           {ministerio.lideres.map(l => l.nome).join(", ")}
                         </p>
                       </div>
@@ -143,7 +143,7 @@ const Ministerios = () => {
               <p className="text-sm font-medium text-foreground mb-2">Liderança:</p>
               <ul className="space-y-1">
                 {selectedMinisterio.lideres.map((lider, index) => (
-                  <li key={index} className="text-sm text-muted-foreground">
+                  <li key={index} className="text-base text-muted-foreground">
                     • {lider.nome}
                   </li>
                 ))}

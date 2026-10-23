@@ -85,7 +85,7 @@ const Pastores = () => {
                     <h3 className="font-display text-xl font-semibold text-foreground">{pastor.nome}</h3>
                     <p className="text-sm text-primary font-medium mt-1">{pastor.funcao}</p>
                     {pastor.bio && (
-                      <p className="mt-4 text-sm text-muted-foreground">{pastor.bio}</p>
+                      <p className="mt-4 text-base text-muted-foreground">{pastor.bio}</p>
                     )}
                   </div>
                 </div>
