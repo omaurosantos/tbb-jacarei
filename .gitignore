@@ -48,3 +48,6 @@ yarn.lock
 
 # Estado local do oh-my-claudecode
 .omc/
+
+# Capturas da skill design-taste-frontend
+.taste-skill/
