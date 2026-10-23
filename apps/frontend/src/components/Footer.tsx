@@ -35,7 +35,7 @@ const Footer = () => {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs bg-primary-foreground/10 hover:bg-primary-foreground/20 px-3 py-1.5 rounded-full transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs bg-primary-foreground/10 hover:bg-primary-foreground/20 px-3 py-2.5 rounded-full transition-colors"
                   >
                     <Instagram className="h-3.5 w-3.5" />
                     {link.handle}
@@ -52,7 +52,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/igreja"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
                 >
                   Sobre a Igreja
                 </Link>
@@ -60,7 +60,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/ministerios"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
                 >
                   Ministérios
                 </Link>
@@ -68,7 +68,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/recursos"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
                 >
                   Sermões
                 </Link>
@@ -76,7 +76,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/localizacao"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
                 >
                   Como Chegar
                 </Link>
@@ -95,7 +95,7 @@ const Footer = () => {
                   <li key={i}>{linha}</li>
                 ))}
               <li className="pt-2">
-                <a href={`mailto:${contato.email}`} className="hover:text-primary-foreground transition-colors">
+                <a href={`mailto:${contato.email}`} className="inline-block py-1.5 hover:text-primary-foreground transition-colors">
                   {contato.email}
                 </a>
               </li>

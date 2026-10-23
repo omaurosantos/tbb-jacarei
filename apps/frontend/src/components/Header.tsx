@@ -38,12 +38,13 @@ const Header = () => {
               <button 
                 className="text-sm font-medium hover:text-primary-foreground/80 transition-colors flex items-center gap-1"
                 onClick={() => setIgrejaOpen(!igrejaOpen)}
+                aria-haspopup="true"
               >
                 A Igreja
                 <ChevronDown className="h-4 w-4" />
               </button>
               
-              <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200">
                 <div className="py-2">
                   {igrejaSubLinks.map((link) => (
                     <Link
@@ -73,7 +74,8 @@ const Header = () => {
           <button
             className="md:hidden p-2"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Menu"
+            aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={isOpen}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -95,6 +97,7 @@ const Header = () => {
               <div>
                 <button
                   onClick={() => setIgrejaOpen(!igrejaOpen)}
+                  aria-expanded={igrejaOpen}
                   className="w-full py-2 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded transition-colors flex items-center justify-between"
                 >
                   A Igreja
