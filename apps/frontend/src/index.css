@@ -4,47 +4,48 @@
 
 @layer base {
   :root {
-    /* Rio: verde profundo. Névoa: fundo claro esverdeado. Trigo: único acento quente. */
-    --background: 140 14% 96%;
-    --foreground: 160 22% 10%;
+    /* Oliva da logo (#485043) como única cor da marca, sobre papel de tom lilás como o branco da logo. */
+    --background: 270 12% 97%;
+    --foreground: 93 15% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 22% 10%;
+    --card-foreground: 93 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 22% 10%;
+    --popover-foreground: 93 15% 12%;
 
-    --primary: 160 28% 17%;
-    --primary-foreground: 140 20% 97%;
+    --primary: 97 9% 29%;
+    --primary-foreground: 270 12% 97%;
 
-    --secondary: 140 16% 92%;
-    --secondary-foreground: 160 28% 17%;
+    --secondary: 90 14% 91%;
+    --secondary-foreground: 97 9% 29%;
 
-    --muted: 140 10% 90%;
-    --muted-foreground: 160 10% 27%;
+    --muted: 90 14% 89%;
+    --muted-foreground: 98 8% 28%;
 
-    --accent: 160 28% 17%;
-    --accent-foreground: 140 20% 97%;
+    --accent: 97 9% 29%;
+    --accent-foreground: 270 12% 97%;
 
-    --highlight: 38 68% 51%;
-    --highlight-foreground: 160 22% 10%;
+    /* Destaque: o próprio oliva, em tom claro */
+    --highlight: 88 18% 83%;
+    --highlight-foreground: 93 15% 12%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 140 12% 84%;
-    --input: 140 12% 84%;
-    --ring: 160 28% 17%;
+    --border: 93 13% 83%;
+    --input: 93 13% 83%;
+    --ring: 97 9% 29%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 160 28% 17%;
+    --sidebar-background: 97 9% 29%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 160 28% 17%;
-    --sidebar-accent: 160 24% 24%;
+    --sidebar-primary-foreground: 97 9% 29%;
+    --sidebar-accent: 102 7% 35%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 160 24% 24%;
+    --sidebar-border: 102 7% 35%;
     --sidebar-ring: 0 0% 100%;
   }
 
@@ -77,8 +78,8 @@
     --input: 100 10% 25%;
     --ring: 280 50% 96%;
 
-    --highlight: 38 68% 54%;
-    --highlight-foreground: 160 28% 12%;
+    --highlight: 88 18% 83%;
+    --highlight-foreground: 93 15% 12%;
   }
 }
 
