@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { AppRole } from 'shared';
+import { AppError } from '../utils/AppError.js';
 
 export const usersRepository = {
   findAll: async () => {
@@ -70,23 +71,36 @@ export const usersRepository = {
   },
 
   updateRole: async (userId: string, role: AppRole) => {
-    // Deletar roles existentes e criar nova
-    await prisma.userRole.deleteMany({
-      where: { userId },
-    });
+    // Numa transação: troca o papel e garante que sobre ao menos um admin
+    return prisma.$transaction(async (tx) => {
+      const eraAdmin = await tx.userRole.findFirst({ where: { userId, role: AppRole.ADMIN } });
 
-    return prisma.userRole.create({
-      data: {
-        userId,
-        role,
-      },
+      await tx.userRole.deleteMany({ where: { userId } });
+      const criado = await tx.userRole.create({ data: { userId, role } });
+
+      if (eraAdmin && role !== AppRole.ADMIN) {
+        const restantes = await tx.userRole.count({ where: { role: AppRole.ADMIN } });
+        if (restantes === 0) {
+          throw new AppError('Não é possível remover o último administrador', 400, 'BadRequest');
+        }
+      }
+      return criado;
     });
   },
 
   delete: async (id: string) => {
-    return prisma.user.delete({
-      where: { id },
+    return prisma.$transaction(async (tx) => {
+      const eraAdmin = await tx.userRole.findFirst({ where: { userId: id, role: AppRole.ADMIN } });
+
+      const removido = await tx.user.delete({ where: { id } });
+
+      if (eraAdmin) {
+        const restantes = await tx.userRole.count({ where: { role: AppRole.ADMIN } });
+        if (restantes === 0) {
+          throw new AppError('Não é possível remover o último administrador', 400, 'BadRequest');
+        }
+      }
+      return removido;
     });
   },
 };
-

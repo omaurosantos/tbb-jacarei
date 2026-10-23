@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authRoutes } from './routes/auth.js';
@@ -15,6 +16,8 @@ import { uploadRoutes } from './routes/upload.js';
 const app = express();
 
 // Middleware
+// CORP cross-origin: as fotos de /uploads são exibidas por um frontend em outra origem
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
   origin: env.frontendUrls,
   credentials: true,

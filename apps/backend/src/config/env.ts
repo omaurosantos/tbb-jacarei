@@ -27,3 +27,17 @@ if (!env.jwtSecret) {
   throw new Error('JWT_SECRET é obrigatória');
 }
 
+// Valores de exemplo dos .env.example/compose: públicos, qualquer um forjaria um token de admin
+const SEGREDOS_DE_EXEMPLO = [
+  'your-secret-key-change-in-production',
+  'your-super-secret-jwt-key-change-this-in-production',
+];
+
+if (env.nodeEnv === 'production') {
+  if (SEGREDOS_DE_EXEMPLO.includes(env.jwtSecret) || env.jwtSecret.length < 32) {
+    throw new Error(
+      'JWT_SECRET insegura: em produção use um valor próprio com pelo menos 32 caracteres (ex.: openssl rand -base64 48)'
+    );
+  }
+}
+
