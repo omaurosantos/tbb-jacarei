@@ -12,9 +12,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, FileText } from "lucide-react";
+import { Pencil, FileText, Plus, Trash2 } from "lucide-react";
+import {
+  CONTATO_PAGINA,
+  CONTATO_PADRAO,
+  MAPA_PREFIXO,
+  extrairMapaUrl,
+  mesclarContato,
+  type Contato,
+} from "@/hooks/use-contato";
 
 const paginasInfo: Record<string, { label: string; description: string }> = {
+  [CONTATO_PAGINA]: { label: "Contato e Localização", description: "Endereço, horários, telefone, e-mail, Instagram e mapa" },
   "quem-somos": { label: "Quem Somos", description: "Texto principal da página" },
   "missao": { label: "Missão", description: "Declaração de missão e itens" },
   "visao": { label: "Visão", description: "Texto e pilares da visão" },
@@ -32,6 +41,9 @@ const AdminConteudos = () => {
     subtitulo: "",
     conteudo: "",
   });
+  const [contato, setContato] = useState<Contato>(CONTATO_PADRAO);
+
+  const editandoContato = editing?.pagina === CONTATO_PAGINA;
 
   const fetchConteudos = useCallback(async () => {
     try {
@@ -57,6 +69,7 @@ const AdminConteudos = () => {
       subtitulo: conteudo.subtitulo || "",
       conteudo: conteudo.conteudo,
     });
+    setContato(mesclarContato(conteudo.conteudoExtra));
     setModal(true);
   };
 
@@ -64,11 +77,31 @@ const AdminConteudos = () => {
     e.preventDefault();
     if (!editing) return;
 
+    if (editandoContato) {
+      const mapaUrl = extrairMapaUrl(contato.mapaUrl);
+      if (!mapaUrl.startsWith(MAPA_PREFIXO)) {
+        toast({
+          title: "Mapa inválido",
+          description: "Cole o código de \"Incorporar um mapa\" do Google Maps (começa com <iframe ...>).",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     try {
       await conteudosService.update(editing.pagina, {
         titulo: form.titulo,
         subtitulo: form.subtitulo || null,
         conteudo: form.conteudo,
+        ...(editandoContato && {
+          conteudoExtra: {
+            ...contato,
+            instagram: contato.instagram.replace(/^@/, "").trim(),
+            mapaUrl: extrairMapaUrl(contato.mapaUrl),
+            horarios: contato.horarios.filter((h) => h.dia.trim() && h.descricao.trim()),
+          },
+        }),
       });
       toast({ title: "Conteúdo atualizado!" });
       setModal(false);
@@ -123,36 +156,149 @@ const AdminConteudos = () => {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
-            <div>
-              <Label htmlFor="conteudo-titulo">Título</Label>
-              <Input
-                id="conteudo-titulo"
-                value={form.titulo}
-                onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="conteudo-subtitulo">Subtítulo</Label>
-              <Input
-                id="conteudo-subtitulo"
-                value={form.subtitulo}
-                onChange={(e) => setForm({ ...form, subtitulo: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="conteudo-texto">Conteúdo</Label>
-              <Textarea
-                id="conteudo-texto"
-                value={form.conteudo}
-                onChange={(e) => setForm({ ...form, conteudo: e.target.value })}
-                rows={12}
-                className="font-mono text-sm"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Use linhas em branco para separar parágrafos
-              </p>
-            </div>
+            {editandoContato ? (
+              <>
+                <div>
+                  <Label htmlFor="contato-endereco">Endereço</Label>
+                  <Textarea
+                    id="contato-endereco"
+                    value={contato.endereco}
+                    onChange={(e) => setContato({ ...contato, endereco: e.target.value })}
+                    rows={3}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Uma linha para cada parte (rua, bairro, CEP)</p>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contato-telefone">Telefone</Label>
+                    <Input
+                      id="contato-telefone"
+                      value={contato.telefone}
+                      onChange={(e) => setContato({ ...contato, telefone: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contato-email">E-mail</Label>
+                    <Input
+                      id="contato-email"
+                      type="email"
+                      value={contato.email}
+                      onChange={(e) => setContato({ ...contato, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="contato-instagram">Instagram (usuário)</Label>
+                  <Input
+                    id="contato-instagram"
+                    value={contato.instagram}
+                    onChange={(e) => setContato({ ...contato, instagram: e.target.value })}
+                    placeholder="tbbjacarei"
+                  />
+                </div>
+                <div>
+                  <Label>Horários</Label>
+                  <div className="space-y-2 mt-1">
+                    {contato.horarios.map((h, i) => (
+                      <div key={i} className="flex gap-2">
+                        <Input
+                          aria-label="Dia"
+                          className="w-36 shrink-0"
+                          placeholder="Domingo"
+                          value={h.dia}
+                          onChange={(e) =>
+                            setContato({
+                              ...contato,
+                              horarios: contato.horarios.map((x, j) => (j === i ? { ...x, dia: e.target.value } : x)),
+                            })
+                          }
+                        />
+                        <Input
+                          aria-label="Descrição do horário"
+                          placeholder="10h (EBD) e 18h (Culto)"
+                          value={h.descricao}
+                          onChange={(e) =>
+                            setContato({
+                              ...contato,
+                              horarios: contato.horarios.map((x, j) =>
+                                j === i ? { ...x, descricao: e.target.value } : x
+                              ),
+                            })
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Remover horário"
+                          onClick={() =>
+                            setContato({ ...contato, horarios: contato.horarios.filter((_, j) => j !== i) })
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setContato({ ...contato, horarios: [...contato.horarios, { dia: "", descricao: "" }] })
+                      }
+                    >
+                      <Plus className="h-4 w-4 mr-1" /> Adicionar horário
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="contato-mapa">Mapa (Google Maps)</Label>
+                  <Textarea
+                    id="contato-mapa"
+                    value={contato.mapaUrl}
+                    onChange={(e) => setContato({ ...contato, mapaUrl: e.target.value })}
+                    rows={3}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    No Google Maps: Compartilhar → Incorporar um mapa → Copiar HTML, e cole aqui.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <Label htmlFor="conteudo-titulo">Título</Label>
+                  <Input
+                    id="conteudo-titulo"
+                    value={form.titulo}
+                    onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="conteudo-subtitulo">Subtítulo</Label>
+                  <Input
+                    id="conteudo-subtitulo"
+                    value={form.subtitulo}
+                    onChange={(e) => setForm({ ...form, subtitulo: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="conteudo-texto">Conteúdo</Label>
+                  <Textarea
+                    id="conteudo-texto"
+                    value={form.conteudo}
+                    onChange={(e) => setForm({ ...form, conteudo: e.target.value })}
+                    rows={12}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use linhas em branco para separar parágrafos
+                  </p>
+                </div>
+              </>
+            )}
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setModal(false)}>

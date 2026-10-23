@@ -139,6 +139,23 @@ Para isso, cada ministério da igreja está em desenvolvimento para cultivar 4 �
         ],
       },
     },
+    {
+      pagina: 'contato',
+      titulo: 'Contato e Localização',
+      subtitulo: 'Endereço, horários, telefone, e-mail, Instagram e mapa exibidos no rodapé e na página Localização.',
+      conteudo: '',
+      conteudoExtra: {
+        endereco: 'R. Carlos de Campos, 447\nParque Itamarati, Jacareí - SP\nCEP: 12307-430',
+        telefone: '(12) XXXX-XXXX',
+        email: 'contato@tbbjacarei.com.br',
+        instagram: 'tbbjacarei',
+        horarios: [
+          { dia: 'Domingo', descricao: '10h (EBD) e 18h (Culto)' },
+          { dia: 'Quarta-feira', descricao: '19h30 (Koinonias - Pequenos Grupos)' },
+          { dia: 'Sábado', descricao: '18h (Creser - quinzenal / Conexteen - semanal)' },
+        ],
+      },
+    },
   ];
 
   // Só cria o que falta: o seed roda a cada deploy e não pode sobrescrever edições feitas pelo painel

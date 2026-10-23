@@ -9,7 +9,8 @@ const router = Router();
 const updateConteudoSchema = z.object({
   titulo: z.string().min(1, 'Título é obrigatório'),
   subtitulo: z.string().optional().nullable(),
-  conteudo: z.string().min(1, 'Conteúdo é obrigatório'),
+  // Algumas páginas (o-que-cremos, contato) guardam tudo em conteudoExtra e deixam o texto vazio
+  conteudo: z.string(),
   conteudoExtra: z.any().optional().nullable(),
 });
 

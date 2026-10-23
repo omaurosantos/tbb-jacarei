@@ -110,7 +110,7 @@ pnpm --filter backend typecheck && pnpm build:backend && pnpm lint && pnpm build
 | Sem deploy | O README sugere opções (Neon para o banco; Render/Railway/Fly para o backend; Vercel/Netlify para o frontend). Nada foi configurado |
 | Textos `home` e `pastores` | O site lê essas chaves, mas o seed não as cria e o painel só edita chaves que já existem. Hoje aparecem os textos padrão do código |
 | Itens extras não editáveis | Os itens da Missão, os pilares da Visão e as crenças de O Que Cremos ficam em `conteudoExtra` (JSON). O painel edita só título, subtítulo e texto principal |
-| Conteúdo fixo no código | Localização, rodapé (endereço, Instagram) e a página A Igreja |
+| Conteúdo fixo no código | A página A Igreja (só cartões de navegação) e o texto de apresentação do rodapé. Endereço, telefone, e-mail, Instagram, horários e mapa agora são editáveis em Conteúdos → Contato e Localização (chave `contato`) |
 | Dados antigos | Pastores, ministérios, sermões e eventos da época do Supabase não foram migrados. O banco novo começa vazio, exceto pelos 4 textos institucionais |
 | Sem testes automatizados | A verificação até aqui foi manual, por scripts e pelo navegador |
 | React Query sem uso | `@tanstack/react-query` está instalado e com provider, mas as páginas buscam dados com `useEffect` e os services |
