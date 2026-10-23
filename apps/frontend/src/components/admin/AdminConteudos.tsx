@@ -35,6 +35,7 @@ const AdminConteudos = () => {
   const [conteudos, setConteudos] = useState<ConteudoPagina[]>([]);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<ConteudoPagina | null>(null);
+  const [carregado, setCarregado] = useState(false);
 
   const [form, setForm] = useState({
     titulo: "",
@@ -49,6 +50,7 @@ const AdminConteudos = () => {
     try {
       const data = await conteudosService.getAll();
       setConteudos(data);
+      setCarregado(true);
     } catch (error) {
       toast({
         title: "Erro ao carregar conteúdos",
@@ -142,8 +144,10 @@ const AdminConteudos = () => {
             </Button>
           </div>
         ))}
-        {conteudos.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">Nenhum conteúdo encontrado</p>
+        {carregado && conteudos.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">
+            Nenhum texto cadastrado ainda. Rode o seed (<code>pnpm db:seed</code>, ou reinicie o serviço prisma-migrate no Docker) para criar os textos padrão.
+          </p>
         )}
       </div>
 

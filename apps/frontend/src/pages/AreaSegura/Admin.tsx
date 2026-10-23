@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { sermoesService, aulasEbdService, eventosService, usersService } from "@/lib/api";
-import Layout from "@/components/Layout";
+import { sermoesService, aulasEbdService, eventosService, usersService, pastoresService, ministeriosService } from "@/lib/api";
+import logoTBB from "@/assets/logo-tbb.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, Trash2, LogOut, Pencil, Users, Shield, User as UserIcon, 
-  BookOpen, GraduationCap, Calendar, FileText, Church, Menu
+  BookOpen, GraduationCap, Calendar, FileText, Church, Menu, LayoutDashboard, ExternalLink
 } from "lucide-react";
 import { Sermao, AulaEbd, Evento, User, AppRole, EbdClasse } from "shared";
 import AdminPastores from "@/components/admin/AdminPastores";
@@ -48,9 +48,10 @@ type SermaoForm = Omit<Sermao, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 type AulaEbdForm = Omit<AulaEbd, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 type EventoForm = Omit<Evento, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>;
 
-type Section = "sermoes" | "aulas" | "eventos" | "pastores" | "ministerios" | "conteudos" | "usuarios";
+type Section = "resumo" | "sermoes" | "aulas" | "eventos" | "pastores" | "ministerios" | "conteudos" | "usuarios";
 
 const menuItems: { id: Section; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
+  { id: "resumo", label: "Resumo", icon: <LayoutDashboard className="h-5 w-5" /> },
   { id: "sermoes", label: "Sermões", icon: <BookOpen className="h-5 w-5" /> },
   { id: "aulas", label: "Aulas EBD", icon: <GraduationCap className="h-5 w-5" /> },
   { id: "eventos", label: "Eventos", icon: <Calendar className="h-5 w-5" /> },
@@ -66,7 +67,7 @@ const Admin = () => {
   const { user, isAdmin, loading: authLoading, logout } = useAuth();
   
   const [loading, setLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState<Section>("sermoes");
+  const [activeSection, setActiveSection] = useState<Section>("resumo");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Modal states
@@ -102,6 +103,8 @@ const Admin = () => {
   const [eventoMonth, setEventoMonth] = useState<number | null>(null);
   const [eventoYear, setEventoYear] = useState<number | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [totalPastores, setTotalPastores] = useState<number | null>(null);
+  const [totalMinisterios, setTotalMinisterios] = useState<number | null>(null);
 
   // Form states
   const [sermaoForm, setSermaoForm] = useState({
@@ -204,6 +207,10 @@ const Admin = () => {
       setSermoes(sermoesData);
       setAulas(aulasData);
       setEventos(eventosData);
+
+      // Só para o resumo: se falhar, o painel segue funcionando
+      pastoresService.getAll().then((l) => setTotalPastores(l.length)).catch(() => setTotalPastores(null));
+      ministeriosService.getAll().then((l) => setTotalMinisterios(l.length)).catch(() => setTotalMinisterios(null));
 
       // Fetch users if admin
       if (isAdmin) {
@@ -480,78 +487,174 @@ const Admin = () => {
 
   const visibleMenuItems = menuItems.filter(item => !item.adminOnly || isAdmin);
 
-  return (
-    <Layout>
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed bottom-4 right-4 z-50 bg-primary text-primary-foreground p-3 rounded-full shadow-lg"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
+  const hojeISO = new Date().toISOString().split("T")[0];
+  const proximosEventos = eventos.filter((e) => e.data >= hojeISO).sort((a, b) => a.data.localeCompare(b.data));
+  const formatarData = (d: string) => {
+    const date = new Date(d.slice(0, 10) + "T00:00:00");
+    return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" });
+  };
 
+  const irPara = (secao: Section, abrir?: () => void) => {
+    setActiveSection(secao);
+    abrir?.();
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Barra do painel */}
+      <header className="sticky top-0 z-50 h-14 bg-primary text-primary-foreground border-b-2 border-highlight">
+        <div className="flex h-full items-center gap-3 px-4">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden -ml-1 p-2 rounded-md hover:bg-primary-foreground/10"
+            aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={sidebarOpen}
+            aria-controls="admin-sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <img src={logoTBB} alt="" className="h-8 w-8 rounded-full" />
+          <span className="font-display font-semibold">Administração</span>
+          <div className="ml-auto flex items-center gap-1 sm:gap-3">
+            <span className="hidden md:inline text-sm text-primary-foreground/75">{user?.email}</span>
+            <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Link to="/" aria-label="Ver site">
+                <ExternalLink className="h-4 w-4 sm:mr-2" aria-hidden="true" />
+                <span className="hidden sm:inline">Ver site</span>
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              onClick={handleLogout}
+              aria-label="Sair"
+            >
+              <LogOut className="h-4 w-4 sm:mr-2" aria-hidden="true" />
+              <span className="hidden sm:inline">Sair</span>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1">
         {/* Sidebar overlay for mobile */}
         {sidebarOpen && (
-          <div 
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          <div
+            className="lg:hidden fixed inset-0 top-14 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
           />
         )}
 
         {/* Sidebar */}
-        <aside className={cn(
-          "fixed lg:sticky top-0 left-0 z-40 h-screen lg:h-auto w-64 bg-card border-r border-border transition-transform lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}>
-          <div className="flex flex-col h-full">
-            {/* Sidebar Header */}
-            <div className="p-4 border-b border-border">
-              <h2 className="font-display text-lg font-semibold text-foreground">Administração</h2>
-              <p className="text-sm text-muted-foreground mt-1">Gerencie o conteúdo</p>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-              {visibleMenuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                    activeSection === item.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  {item.icon}
-                  {item.label}
-                  {item.adminOnly && (
-                    <Shield className="h-3 w-3 ml-auto opacity-60" />
-                  )}
-                </button>
-              ))}
-            </nav>
-
-            {/* Sidebar Footer */}
-            <div className="p-4 border-t border-border">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-2" 
-                onClick={handleLogout}
+        <aside
+          id="admin-sidebar"
+          className={cn(
+            "fixed lg:sticky top-14 left-0 z-40 h-[calc(100vh-3.5rem)] w-64 shrink-0 bg-card border-r border-border transition-transform motion-reduce:transition-none lg:translate-x-0",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          <nav aria-label="Seções do painel" className="h-full p-4 space-y-1 overflow-y-auto">
+            {visibleMenuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  setSidebarOpen(false);
+                }}
+                aria-current={activeSection === item.id ? "page" : undefined}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  activeSection === item.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
-                <LogOut className="h-4 w-4" />
-                Sair
-              </Button>
-            </div>
-          </div>
+                {item.icon}
+                {item.label}
+                {item.adminOnly && <Shield className="h-3 w-3 ml-auto opacity-60" aria-hidden="true" />}
+              </button>
+            ))}
+          </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-background">
+        <main className="flex-1 min-w-0 p-4 md:p-6 lg:p-8 bg-background">
+          {/* Resumo */}
+          {activeSection === "resumo" && (
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-2xl font-display font-bold text-foreground">
+                  Olá{user?.nome ? `, ${user.nome.split(" ")[0]}` : ""}
+                </h1>
+                <p className="text-muted-foreground">O que está publicado no site hoje.</p>
+              </div>
+
+              <dl className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+                {[
+                  { rotulo: "Sermões", valor: sermoes.length, secao: "sermoes" as Section },
+                  { rotulo: "Aulas da EBD", valor: aulas.length, secao: "aulas" as Section },
+                  { rotulo: "Eventos futuros", valor: proximosEventos.length, secao: "eventos" as Section },
+                  { rotulo: "Pastores", valor: totalPastores, secao: "pastores" as Section },
+                  { rotulo: "Ministérios", valor: totalMinisterios, secao: "ministerios" as Section },
+                ].map((c) => (
+                  <button
+                    key={c.rotulo}
+                    onClick={() => setActiveSection(c.secao)}
+                    className="text-left rounded-lg border border-border bg-card p-4 hover:border-primary/40 transition-colors"
+                  >
+                    <dd className="font-display text-3xl font-semibold text-foreground">{c.valor ?? "–"}</dd>
+                    <dt className="mt-1 text-sm text-muted-foreground">{c.rotulo}</dt>
+                  </button>
+                ))}
+              </dl>
+
+              <div className="grid gap-8 lg:grid-cols-2">
+                <section aria-labelledby="resumo-publicar">
+                  <h2 id="resumo-publicar" className="font-display text-lg font-semibold text-foreground">Publicar agora</h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button onClick={() => irPara("sermoes", () => { resetSermaoForm(); setSermaoModal(true); })}>
+                      <Plus className="h-4 w-4 mr-2" /> Novo sermão
+                    </Button>
+                    <Button variant="outline" onClick={() => irPara("aulas", () => { resetAulaForm(); setAulaModal(true); })}>
+                      <Plus className="h-4 w-4 mr-2" /> Nova aula
+                    </Button>
+                    <Button variant="outline" onClick={() => irPara("eventos", () => { resetEventoForm(); setEventoModal(true); })}>
+                      <Plus className="h-4 w-4 mr-2" /> Novo evento
+                    </Button>
+                  </div>
+
+                  <h2 className="mt-8 font-display text-lg font-semibold text-foreground">Último sermão</h2>
+                  {sermoes[0] ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">{sermoes[0].titulo}</span>
+                      {" — "}{sermoes[0].pregador}, {formatarData(sermoes[0].data)}
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-sm text-muted-foreground">Nenhum sermão publicado ainda. A home só mostra o bloco de sermão depois do primeiro.</p>
+                  )}
+                </section>
+
+                <section aria-labelledby="resumo-eventos">
+                  <h2 id="resumo-eventos" className="font-display text-lg font-semibold text-foreground">Próximos eventos</h2>
+                  {proximosEventos.length === 0 ? (
+                    <p className="mt-2 text-sm text-muted-foreground">Nenhum evento futuro. Sem eventos, a home mostra só os horários da semana.</p>
+                  ) : (
+                    <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-card">
+                      {proximosEventos.slice(0, 4).map((e) => (
+                        <li key={e.id} className="flex items-baseline justify-between gap-4 px-4 py-3 text-sm">
+                          <span className="font-medium text-foreground">{e.nome}</span>
+                          <span className="shrink-0 text-muted-foreground">{formatarData(e.data)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
+            </div>
+          )}
+
           {/* Sermões */}
           {activeSection === "sermoes" && (
             <div className="space-y-6">
@@ -1060,7 +1163,7 @@ const Admin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Layout>
+    </div>
   );
 };
 
