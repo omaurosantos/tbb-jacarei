@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
 import { Users, Target, Eye, BookOpen, UserCheck } from "lucide-react";
 
 const sections = [
@@ -39,14 +40,7 @@ const Igreja = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">A Igreja</h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Conheça nossa história, valores e o que nos move como comunidade de fé.
-          </p>
-        </div>
-      </section>
+      <PageHeader title="A Igreja" subtitle="Conheça nossa história, valores e o que nos move como comunidade de fé." />
 
       {/* Cards de navegação */}
       <section className="py-16 md:py-20 bg-background">

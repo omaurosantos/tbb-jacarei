@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { conteudosService } from "@/lib/api";
 import { ConteudoPagina } from "shared";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
 
 interface Crenca {
   titulo: string;
@@ -39,16 +40,7 @@ const OQueCremos = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">
-            {conteudo?.titulo || "O Que Cremos"}
-          </h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            {conteudo?.subtitulo || "As doutrinas que fundamentam nossa fé e prática."}
-          </p>
-        </div>
-      </section>
+      <PageHeader title={conteudo?.titulo || "O Que Cremos"} subtitle={conteudo?.subtitulo || "As doutrinas que fundamentam nossa fé e prática."} />
 
       {/* Conteúdo */}
       <section className="py-16 md:py-20 bg-background">

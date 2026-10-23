@@ -4,43 +4,47 @@
 
 @layer base {
   :root {
-    --background: 280 50% 98.6%;
-    --foreground: 100 10% 10%;
+    /* Rio: verde profundo. Névoa: fundo claro esverdeado. Trigo: único acento quente. */
+    --background: 140 14% 96%;
+    --foreground: 160 22% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 100 10% 10%;
+    --card-foreground: 160 22% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 100 10% 10%;
+    --popover-foreground: 160 22% 10%;
 
-    --primary: 100 10% 28%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 160 28% 17%;
+    --primary-foreground: 140 20% 97%;
 
-    --secondary: 280 50% 96%;
-    --secondary-foreground: 100 10% 28%;
+    --secondary: 140 16% 92%;
+    --secondary-foreground: 160 28% 17%;
 
-    --muted: 100 5% 90%;
-    --muted-foreground: 100 5% 40%;
+    --muted: 140 10% 90%;
+    --muted-foreground: 160 8% 36%;
 
-    --accent: 100 10% 28%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 160 28% 17%;
+    --accent-foreground: 140 20% 97%;
+
+    --highlight: 38 68% 54%;
+    --highlight-foreground: 160 28% 12%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 100 10% 85%;
-    --input: 100 10% 85%;
-    --ring: 100 10% 28%;
+    --border: 140 12% 84%;
+    --input: 140 12% 84%;
+    --ring: 160 28% 17%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 100 10% 28%;
+    --sidebar-background: 160 28% 17%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 100 10% 28%;
-    --sidebar-accent: 100 10% 35%;
+    --sidebar-primary-foreground: 160 28% 17%;
+    --sidebar-accent: 160 24% 24%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 100 10% 35%;
+    --sidebar-border: 160 24% 24%;
     --sidebar-ring: 0 0% 100%;
   }
 
@@ -72,6 +76,9 @@
     --border: 100 10% 25%;
     --input: 100 10% 25%;
     --ring: 280 50% 96%;
+
+    --highlight: 38 68% 54%;
+    --highlight-foreground: 160 28% 12%;
   }
 }
 
@@ -85,11 +92,22 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display tracking-tight;
   }
 }
 
 @layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-fade-in-delay-1,
+    .animate-fade-in-delay-2,
+    .animate-fade-in-delay-3 {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
   .animate-fade-in {
     animation: fadeIn 0.6s ease-out forwards;
   }

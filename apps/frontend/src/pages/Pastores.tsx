@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { pastoresService, conteudosService, resolveAssetUrl } from "@/lib/api";
 import { Pastor } from "shared";
 import Layout from "@/components/Layout";
-import { Camera } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import { Camera, Users } from "lucide-react";
 
 const Pastores = () => {
   const [pastores, setPastores] = useState<Pastor[]>([]);
@@ -32,14 +34,7 @@ const Pastores = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">Nossos Pastores</h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Conheça a liderança pastoral do Templo Batista Bíblico.
-          </p>
-        </div>
-      </section>
+      <PageHeader title="Nossos Pastores" subtitle="Conheça a liderança pastoral do Templo Batista Bíblico." />
 
       {/* Intro */}
       <section className="py-12 md:py-16 bg-secondary">
@@ -60,9 +55,12 @@ const Pastores = () => {
               <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
           ) : pastores.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">
-              Nenhum pastor cadastrado no momento.
-            </p>
+            <EmptyState
+              icon={<Users className="h-8 w-8" />}
+              title="Os pastores serão apresentados em breve"
+              description="Enquanto isso, venha conhecer a liderança pessoalmente nos nossos encontros."
+              action={{ label: "Ver horários e endereço", to: "/localizacao" }}
+            />
           ) : (
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {pastores.map((pastor) => (

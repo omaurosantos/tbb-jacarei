@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { conteudosService } from "@/lib/api";
 import { ConteudoPagina } from "shared";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
 
 const QuemSomos = () => {
   const [conteudo, setConteudo] = useState<ConteudoPagina | null>(null);
@@ -35,16 +36,7 @@ const QuemSomos = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">
-            {conteudo?.titulo || "Quem Somos"}
-          </h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            {conteudo?.subtitulo || "Conheça a identidade e os valores do Templo Batista Bíblico."}
-          </p>
-        </div>
-      </section>
+      <PageHeader title={conteudo?.titulo || "Quem Somos"} subtitle={conteudo?.subtitulo || "Conheça a identidade e os valores do Templo Batista Bíblico."} />
 
       {/* Conteúdo */}
       <section className="py-16 md:py-20 bg-background">
