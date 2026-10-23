@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { conteudosService } from "@/lib/api";
 import { ConteudoPagina } from "shared";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
 import { Users, Heart, BookOpen, GraduationCap } from "lucide-react";
 
 interface Pilar {
@@ -53,16 +54,7 @@ const Visao = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">
-            {conteudo?.titulo || "Nossa Visão"}
-          </h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            {conteudo?.subtitulo || "O grande desafio que temos pela frente."}
-          </p>
-        </div>
-      </section>
+      <PageHeader title={conteudo?.titulo || "Nossa Visão"} subtitle={conteudo?.subtitulo || "O grande desafio que temos pela frente."} />
 
       {/* Conteúdo */}
       <section className="py-16 md:py-20 bg-background">

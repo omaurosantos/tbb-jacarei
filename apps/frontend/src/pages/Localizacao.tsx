@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
 import SectionTitle from "@/components/SectionTitle";
 import { MapPin, Clock, Phone, Mail, Users } from "lucide-react";
 import { useContato } from "@/hooks/use-contato";
@@ -10,14 +11,7 @@ const Localizacao = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">Localização</h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Encontre-nos e venha fazer parte da nossa comunidade.
-          </p>
-        </div>
-      </section>
+      <PageHeader title="Localização" subtitle="Encontre-nos e venha fazer parte da nossa comunidade." />
 
       {/* Info */}
       <section className="py-16 md:py-20 bg-background">

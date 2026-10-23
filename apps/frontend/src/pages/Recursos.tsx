@@ -3,9 +3,11 @@ import { useLocation } from "react-router-dom";
 import { sermoesService, aulasEbdService, eventosService } from "@/lib/api";
 import { Sermao, AulaEbd, Evento, EbdClasse } from "shared";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Clock, MapPin } from "lucide-react";
+import { FileText, Clock, MapPin, SearchX, Mic, GraduationCap, CalendarX } from "lucide-react";
 import { usePagination } from "@/hooks/use-pagination";
 import { SearchFilter } from "@/components/SearchFilter";
 import { PaginationControls } from "@/components/PaginationControls";
@@ -114,14 +116,7 @@ const Recursos = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">Recursos</h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Acesse sermões, aulas e agenda de eventos.
-          </p>
-        </div>
-      </section>
+      <PageHeader title="Recursos" subtitle="Acesse sermões, aulas e agenda de eventos." />
 
       {/* Tabs */}
       <section className="py-12 md:py-16 bg-background">
@@ -153,11 +148,19 @@ const Recursos = () => {
                   />
 
                   {sermoesPagination.totalItems === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
-                      {sermaoSearch || sermaoMonth !== null || sermaoYear !== null 
-                        ? "Nenhum sermão encontrado com os filtros aplicados." 
-                        : "Nenhum sermão disponível no momento."}
-                    </p>
+                    sermaoSearch || sermaoMonth !== null || sermaoYear !== null ? (
+                      <EmptyState
+                        icon={<SearchX className="h-8 w-8" />}
+                        title="Nenhum sermão encontrado"
+                        description="Tente outro título, pregador ou período, ou remova os filtros."
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={<Mic className="h-8 w-8" />}
+                        title="Os sermões aparecerão aqui"
+                        description="Assim que o primeiro sermão for publicado, você poderá assistir ou ouvir por esta página."
+                      />
+                    )
                   ) : (
                     <div className="space-y-4">
                       {sermoesPagination.paginatedData.map((sermao) => (
@@ -283,11 +286,20 @@ const Recursos = () => {
                   />
 
                   {aulasPagination.totalItems === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
-                      {aulaSearch || aulaMonth !== null || aulaYear !== null || aulaClasse !== null
-                        ? "Nenhuma aula encontrada com os filtros aplicados." 
-                        : "Nenhuma aula disponível no momento."}
-                    </p>
+                    aulaSearch || aulaMonth !== null || aulaYear !== null || aulaClasse !== null ? (
+                      <EmptyState
+                        icon={<SearchX className="h-8 w-8" />}
+                        title="Nenhuma aula encontrada"
+                        description="Tente outro título, classe ou período, ou remova os filtros."
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={<GraduationCap className="h-8 w-8" />}
+                        title="As aulas da EBD aparecerão aqui"
+                        description="A Escola Bíblica Dominical acontece aos domingos. As aulas ficam disponíveis aqui depois de publicadas."
+                        action={{ label: "Ver horários", to: "/localizacao" }}
+                      />
+                    )
                   ) : (
                     <div className="space-y-4">
                       {aulasPagination.paginatedData.map((aula) => (
@@ -339,7 +351,12 @@ const Recursos = () => {
                 {/* Agenda */}
                 <TabsContent value="agenda" className="space-y-4">
                   {eventos.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">Nenhum evento agendado no momento.</p>
+                    <EmptyState
+                      icon={<CalendarX className="h-8 w-8" />}
+                      title="Nenhum evento na agenda"
+                      description="Os encontros semanais continuam acontecendo. Veja os dias e horários."
+                      action={{ label: "Ver horários", to: "/localizacao" }}
+                    />
                   ) : (
                     eventos.map((evento) => (
                       <div key={evento.id} className="bg-card border border-border rounded-lg p-6">

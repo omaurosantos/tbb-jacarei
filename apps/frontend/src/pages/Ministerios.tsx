@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { ministeriosService, resolveAssetUrl } from "@/lib/api";
 import { Ministerio } from "shared";
 import Layout from "@/components/Layout";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sprout, Megaphone, Users, Shield, Heart, Baby, Music, BookOpen, Mic, Hand, Camera } from "lucide-react";
@@ -42,14 +44,7 @@ const Ministerios = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container text-center">
-          <h1 className="font-display text-3xl md:text-5xl font-bold animate-fade-in">Ministérios</h1>
-          <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Conheça as diversas áreas de serviço onde você pode se envolver e crescer.
-          </p>
-        </div>
-      </section>
+      <PageHeader title="Ministérios" subtitle="Conheça as diversas áreas de serviço onde você pode se envolver e crescer." />
 
       {/* Lista de Ministérios */}
       <section className="py-16 md:py-20 bg-background">
@@ -59,9 +54,12 @@ const Ministerios = () => {
               <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
           ) : ministerios.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">
-              Nenhum ministério cadastrado no momento.
-            </p>
+            <EmptyState
+              icon={<Users className="h-8 w-8" />}
+              title="Os ministérios serão publicados em breve"
+              description="Quer saber como servir ou participar de algum grupo? Venha conversar com a gente num dos encontros."
+              action={{ label: "Ver horários e endereço", to: "/localizacao" }}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {ministerios.map((ministerio, index) => (
