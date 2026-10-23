@@ -23,7 +23,7 @@ const formatDate = (dateString: string) => {
 
 const classeColors: Record<string, string> = {
   "Homens": "bg-primary/10 text-primary",
-  "Belas": "bg-highlight/25 text-highlight-foreground",
+  "Belas": "bg-highlight text-highlight-foreground",
   "Adolescentes": "bg-secondary text-secondary-foreground",
 };
 
@@ -257,7 +257,7 @@ const Recursos = () => {
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                         aulaClasse === EbdClasse.BELAS 
                           ? "bg-primary text-primary-foreground" 
-                          : "bg-highlight/25 text-highlight-foreground hover:bg-highlight/40"
+                          : "bg-highlight text-highlight-foreground hover:bg-highlight/70"
                       }`}
                     >
                       Belas
