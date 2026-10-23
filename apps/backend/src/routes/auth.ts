@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { authService } from '../services/authService.js';
 
@@ -10,7 +11,19 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
 
-router.post('/login', async (req, res, next) => {
+// Freia tentativas de adivinhar senha: 10 por IP a cada 15 minutos
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'TooManyRequests',
+    message: 'Muitas tentativas de login. Tente novamente em alguns minutos.',
+  },
+});
+
+router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const validated = loginSchema.parse(req.body);
     const result = await authService.login(validated);
