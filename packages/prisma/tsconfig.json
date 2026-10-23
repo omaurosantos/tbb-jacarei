@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["seed.ts"],
+  "include": ["seed.ts", "seed-demo.ts"],
   "exclude": ["node_modules"]
 }
 
