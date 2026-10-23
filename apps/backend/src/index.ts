@@ -15,6 +15,15 @@ import { uploadRoutes } from './routes/upload.js';
 
 const app = express();
 
+// Os campos `data` (sermões, aulas, eventos) são colunas DATE: o frontend espera "AAAA-MM-DD",
+// mas o Prisma entrega Date e o JSON viraria "AAAA-MM-DDT00:00:00.000Z" (datas inválidas no site).
+// O replacer recebe o valor já serializado por Date#toJSON.
+app.set('json replacer', (key: string, value: unknown) =>
+  key === 'data' && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(value)
+    ? value.slice(0, 10)
+    : value
+);
+
 // Middleware
 // CORP cross-origin: as fotos de /uploads são exibidas por um frontend em outra origem
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));

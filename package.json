@@ -13,6 +13,8 @@
     "db:migrate": "pnpm --filter prisma migrate",
     "db:deploy": "pnpm --filter prisma migrate:deploy",
     "db:seed": "pnpm --filter prisma seed",
+    "db:seed:demo": "pnpm --filter prisma seed:demo",
+    "db:unseed:demo": "pnpm --filter prisma unseed:demo",
     "db:studio": "pnpm --filter prisma studio"
   },
   "devDependencies": {

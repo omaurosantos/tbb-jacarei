@@ -36,6 +36,8 @@ pnpm dev           # site em :8080 (outro terminal)
 
 Entre no painel em `http://localhost:8080/areasegura/login` com o `ADMIN_EMAIL` e a `ADMIN_PASSWORD` que você definiu.
 
+**Dados de demonstração (opcional):** o banco novo começa vazio. Para encher o site com pastores, ministérios, sermões, aulas e eventos **fictícios** (datas relativas a hoje), rode `pnpm db:seed:demo`. Para apagar só o que ele criou, `pnpm db:unseed:demo` (todos os ids começam com `demo-`; o que foi cadastrado pelo painel não é tocado). Não rode em produção real.
+
 > **Dica (Windows):** sem Postgres instalado, o pacote npm `embedded-postgres` resolve. Rode-o numa pasta fora do repo e inicialize com `initdbFlags: ['--encoding=UTF8', '--locale=C']`. O padrão no Windows é WIN1252, que quebra textos com caracteres especiais.
 
 ## Como as peças conversam
