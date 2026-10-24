@@ -35,7 +35,8 @@ const OQueCremos = () => {
     fetchData();
   }, []);
 
-  const crencas = (conteudo?.conteudoExtra as { crencas?: Crenca[] })?.crencas || defaultCrencas;
+  const crencasSalvas = (conteudo?.conteudoExtra as { crencas?: Crenca[] })?.crencas;
+  const crencas = crencasSalvas && crencasSalvas.length > 0 ? crencasSalvas : defaultCrencas;
 
   return (
     <Layout>
