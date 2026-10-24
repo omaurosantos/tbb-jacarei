@@ -25,7 +25,8 @@ const Missao = () => {
     fetchData();
   }, []);
 
-  const itens = (conteudo?.conteudoExtra as { itens?: string[] })?.itens || [
+  const itensSalvos = (conteudo?.conteudoExtra as { itens?: string[] })?.itens;
+  const itens = itensSalvos && itensSalvos.length > 0 ? itensSalvos : [
     "Ajudamos pessoas a conhecerem a Cristo como seu Salvador.",
     "Acompanhamos pessoas por meio de discipulado, para aprenderem a amar a Cristo como Senhor, e andarem com Ele.",
     "Integramos pessoas à igreja local, que como Corpo de Cristo, é o lugar onde recebem edificação para suas vidas e oportunidades para servirem ao próximo.",

@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, FileText, Plus, Trash2 } from "lucide-react";
+import { Pencil, FileText, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import {
   CONTATO_PAGINA,
   CONTATO_PADRAO,
@@ -30,6 +30,142 @@ const paginasInfo: Record<string, { label: string; description: string }> = {
   "o-que-cremos": { label: "O Que Cremos", description: "Declarações de fé" },
 };
 
+// Blocos que as páginas guardam em conteudoExtra e que o painel agora edita
+type CampoExtra = { chave: string; rotulo: string; tipo: "texto" | "area" | "icone" };
+type ExtraInfo = { chave: string; titulo: string; itemNome: string; ajuda: string; simples?: boolean; campos?: CampoExtra[] };
+type ItemExtra = string | Record<string, string>;
+
+const ICONES = [
+  { valor: "Heart", nome: "Coração" },
+  { valor: "Users", nome: "Pessoas" },
+  { valor: "BookOpen", nome: "Livro aberto" },
+  { valor: "GraduationCap", nome: "Capelo" },
+];
+
+const extrasInfo: Record<string, ExtraInfo> = {
+  visao: {
+    chave: "pilares",
+    titulo: "Pilares (os blocos da página Visão)",
+    itemNome: "Pilar",
+    ajuda: "Cada pilar aparece como um bloco com ícone, título, referência bíblica e descrição.",
+    campos: [
+      { chave: "titulo", rotulo: "Título", tipo: "texto" },
+      { chave: "referencia", rotulo: "Referência bíblica", tipo: "texto" },
+      { chave: "descricao", rotulo: "Descrição", tipo: "area" },
+      { chave: "icone", rotulo: "Ícone", tipo: "icone" },
+    ],
+  },
+  missao: {
+    chave: "itens",
+    titulo: "Itens da missão",
+    itemNome: "Item",
+    ajuda: "Cada item aparece como uma linha da lista na página Missão.",
+    simples: true,
+  },
+  "o-que-cremos": {
+    chave: "crencas",
+    titulo: "Declarações de fé",
+    itemNome: "Declaração",
+    ajuda: "Cada declaração aparece com o título em destaque e o texto abaixo.",
+    campos: [
+      { chave: "titulo", rotulo: "Título", tipo: "texto" },
+      { chave: "texto", rotulo: "Texto", tipo: "area" },
+    ],
+  },
+};
+
+const lerItens = (extra: unknown, info: ExtraInfo): ItemExtra[] => {
+  const lista = extra && typeof extra === "object" ? (extra as Record<string, unknown>)[info.chave] : undefined;
+  if (!Array.isArray(lista)) return [];
+  return lista.map((item) => {
+    if (info.simples) return typeof item === "string" ? item : "";
+    const registro = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+    return Object.fromEntries((info.campos ?? []).map((c) => [c.chave, typeof registro[c.chave] === "string" ? (registro[c.chave] as string) : ""]));
+  });
+};
+
+const limparItens = (itens: ItemExtra[], info: ExtraInfo): ItemExtra[] =>
+  itens
+    .map((item) => (typeof item === "string" ? item.trim() : Object.fromEntries(Object.entries(item).map(([k, v]) => [k, v.trim()]))))
+    .filter((item) =>
+      typeof item === "string" ? item !== "" : (info.campos ?? []).some((c) => c.tipo !== "icone" && item[c.chave] !== "")
+    );
+
+const ListaExtra = ({ info, itens, onChange }: { info: ExtraInfo; itens: ItemExtra[]; onChange: (itens: ItemExtra[]) => void }) => {
+  const mover = (i: number, passo: number) => {
+    const j = i + passo;
+    if (j < 0 || j >= itens.length) return;
+    const novo = [...itens];
+    [novo[i], novo[j]] = [novo[j], novo[i]];
+    onChange(novo);
+  };
+  const itemVazio = (): ItemExtra =>
+    info.simples ? "" : Object.fromEntries((info.campos ?? []).map((c) => [c.chave, c.tipo === "icone" ? ICONES[0].valor : ""]));
+  const mudar = (i: number, chave: string | null, valor: string) =>
+    onChange(itens.map((item, j) => (j !== i ? item : chave === null ? valor : { ...(item as Record<string, string>), [chave]: valor })));
+
+  return (
+    <section aria-label={info.titulo}>
+      <h3 className="font-display text-lg font-semibold">{info.titulo}</h3>
+      <p className="text-sm text-muted-foreground mt-1">{info.ajuda}</p>
+      <div className="mt-3 space-y-4">
+        {itens.map((item, i) => (
+          <div key={i} className="rounded-md bg-secondary p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold">{info.itemNome} {i + 1}</span>
+              <div className="flex gap-1">
+                <Button type="button" variant="ghost" size="icon" aria-label={`Subir ${info.itemNome.toLowerCase()} ${i + 1}`} disabled={i === 0} onClick={() => mover(i, -1)}>
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" aria-label={`Descer ${info.itemNome.toLowerCase()} ${i + 1}`} disabled={i === itens.length - 1} onClick={() => mover(i, 1)}>
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" aria-label={`Remover ${info.itemNome.toLowerCase()} ${i + 1}`} onClick={() => onChange(itens.filter((_, j) => j !== i))}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {info.simples ? (
+              <Textarea aria-label={`Texto do ${info.itemNome.toLowerCase()} ${i + 1}`} rows={3} value={item as string} onChange={(e) => mudar(i, null, e.target.value)} />
+            ) : (
+              (info.campos ?? []).map((c) => {
+                const id = `extra-${i}-${c.chave}`;
+                const valor = (item as Record<string, string>)[c.chave] ?? "";
+                return (
+                  <div key={c.chave}>
+                    <Label htmlFor={id}>{c.rotulo}</Label>
+                    {c.tipo === "area" ? (
+                      <Textarea id={id} rows={3} value={valor} onChange={(e) => mudar(i, c.chave, e.target.value)} />
+                    ) : c.tipo === "icone" ? (
+                      <select
+                        id={id}
+                        value={valor}
+                        onChange={(e) => mudar(i, c.chave, e.target.value)}
+                        className="flex h-12 w-full rounded-md border border-input bg-background px-3 text-base"
+                      >
+                        {ICONES.map((ic) => (
+                          <option key={ic.valor} value={ic.valor}>{ic.nome}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <Input id={id} value={valor} onChange={(e) => mudar(i, c.chave, e.target.value)} />
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        ))}
+        {itens.length === 0 && <p className="text-sm text-muted-foreground">Nenhum item cadastrado. O site mostra o texto padrão até você adicionar o primeiro.</p>}
+        <Button type="button" variant="outline" onClick={() => onChange([...itens, itemVazio()])}>
+          <Plus className="h-4 w-4 mr-1" /> Adicionar {info.itemNome.toLowerCase()}
+        </Button>
+      </div>
+    </section>
+  );
+};
+
 const AdminConteudos = () => {
   const { toast } = useToast();
   const [conteudos, setConteudos] = useState<ConteudoPagina[]>([]);
@@ -43,8 +179,10 @@ const AdminConteudos = () => {
     conteudo: "",
   });
   const [contato, setContato] = useState<Contato>(CONTATO_PADRAO);
+  const [itensExtra, setItensExtra] = useState<ItemExtra[]>([]);
 
   const editandoContato = editing?.pagina === CONTATO_PAGINA;
+  const extraInfo = editing ? extrasInfo[editing.pagina] : undefined;
 
   const fetchConteudos = useCallback(async () => {
     try {
@@ -72,6 +210,8 @@ const AdminConteudos = () => {
       conteudo: conteudo.conteudo,
     });
     setContato(mesclarContato(conteudo.conteudoExtra));
+    const info = extrasInfo[conteudo.pagina];
+    setItensExtra(info ? lerItens(conteudo.conteudoExtra, info) : []);
     setModal(true);
   };
 
@@ -96,6 +236,13 @@ const AdminConteudos = () => {
         titulo: form.titulo,
         subtitulo: form.subtitulo || null,
         conteudo: form.conteudo,
+        ...(extraInfo && {
+          // Mantém as outras chaves que a página já tinha em conteudoExtra
+          conteudoExtra: {
+            ...(editing.conteudoExtra && typeof editing.conteudoExtra === "object" ? (editing.conteudoExtra as Record<string, unknown>) : {}),
+            [extraInfo.chave]: limparItens(itensExtra, extraInfo),
+          },
+        }),
         ...(editandoContato && {
           conteudoExtra: {
             ...contato,
@@ -301,6 +448,7 @@ const AdminConteudos = () => {
                     Use linhas em branco para separar parágrafos
                   </p>
                 </div>
+                {extraInfo && <ListaExtra info={extraInfo} itens={itensExtra} onChange={setItensExtra} />}
               </>
             )}
 

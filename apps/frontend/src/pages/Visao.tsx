@@ -45,7 +45,8 @@ const Visao = () => {
     fetchData();
   }, []);
 
-  const pilares = (conteudo?.conteudoExtra as { pilares?: Pilar[] })?.pilares || defaultPilares;
+  const pilaresSalvos = (conteudo?.conteudoExtra as { pilares?: Pilar[] })?.pilares;
+  const pilares = pilaresSalvos && pilaresSalvos.length > 0 ? pilaresSalvos : defaultPilares;
   const paragrafos = conteudo?.conteudo.split("\n\n").filter(p => p.trim()) || [
     "Cumprimos nossa missão ao percebermos o grande desafio que temos, em sermos uma igreja que investe vida em vidas; apreciando mais as pessoas do que programas e mais os relacionamentos do que eventos.",
     "Para isso, cada ministério da igreja está em desenvolvimento para cultivar 4 áreas em sua atuação:",
